@@ -1,0 +1,53 @@
+# Exclude development files and dependencies
+node_modules/
+npm-debug.log
+.git/
+.gitignore
+README.md
+.env
+.env.local
+.env.production
+.env.development
+
+# Exclude build artifacts
+dist/
+.vite/
+.cache/
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Exclude IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude test files
+test-results/
+coverage/
