@@ -1,11 +1,36 @@
-from rest_framework import viewsets, filters
+from typing import Any
+from rest_framework import viewsets, filters, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 from .models import Manufacturer, Aircraft
 from .serializers import ManufacturerSerializer, AircraftSerializer, AircraftDetailSerializer
+
+
+class ReadOnlyOrAuthenticatedPermission(permissions.BasePermission):
+    """
+    Custom permission to allow read-only access to unauthenticated users,
+    but require authentication for write operations.
+    """
+
+    def has_permission(self, request: Request, view: Any) -> bool:
+        # Read permissions are allowed for any request
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Write permissions are only allowed to authenticated users
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request: Request, view: Any, obj: Any) -> bool:
+        # Read permissions are allowed for any request
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Write permissions require authentication
+        return request.user and request.user.is_authenticated
 
 
 @extend_schema_view(
@@ -37,12 +62,13 @@ from .serializers import ManufacturerSerializer, AircraftSerializer, AircraftDet
 class ManufacturerViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing aircraft manufacturers.
-    
+
     Provides CRUD operations for manufacturers with filtering by manufacturing status
-    and search by name.
+    and search by name. Write operations require authentication.
     """
     queryset = Manufacturer.objects.all()
     serializer_class = ManufacturerSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['is_currently_manufacturing']
     search_fields = ['name']
@@ -91,13 +117,15 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 class AircraftViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing aircraft specifications.
-    
+
     Provides CRUD operations for aircraft with filtering by manufacturer, MOSAIC compliance,
     and manufacturing status. Supports search by aircraft model and manufacturer name.
     Also includes speed-based ordering for performance comparisons.
+    Write operations require authentication.
     """
     queryset = Aircraft.objects.select_related('manufacturer').all()
     serializer_class = AircraftSerializer
+    permission_classes = [ReadOnlyOrAuthenticatedPermission]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = [
         'manufacturer', 

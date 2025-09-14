@@ -1,4 +1,6 @@
-FROM node:20-alpine
+FROM node:24-alpine
+
+RUN apk add libc6-compat gcompat
 
 # Set working directory
 WORKDIR /app
@@ -6,7 +8,6 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
 RUN npm ci
 
 # Copy source code
@@ -27,5 +28,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
 
-# Start development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Start development server with Docker-specific config
+CMD ["npm", "run", "dev", "--", "--config", "vite.config.docker.js", "--host", "0.0.0.0"]

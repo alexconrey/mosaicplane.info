@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# API endpoints for crawling structured data
+Allow: /api/v1/aircraft/
+Allow: /api/v1/manufacturers/
+
+# Sitemap location
+Sitemap: https://mosaicplane.info/sitemap.xml
+
+# Block common non-essential paths
+Disallow: /assets/
+Disallow: /_assets/
+Disallow: /functions/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

@@ -6,6 +6,11 @@ from datetime import date
 
 class Manufacturer(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    logo = models.URLField(
+        blank=True,
+        null=True,
+        help_text="URL to manufacturer logo image"
+    )
     is_currently_manufacturing = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -110,6 +115,94 @@ class Aircraft(models.Model):
         ],
         help_text="Maneuvering speed (Va) in knots"
     )
+    cruise_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)  # Reasonable maximum
+        ],
+        help_text="Cruise speed in knots (typically 75% power at optimal altitude)"
+    )
+    vx_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Best angle of climb speed (Vx) in knots"
+    )
+    vy_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Best rate of climb speed (Vy) in knots"
+    )
+    vs0_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Stall speed in landing configuration (Vs0) in knots"
+    )
+    vg_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Best glide speed (Vg) in knots"
+    )
+    vfe_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Maximum flap extended speed (Vfe) in knots"
+    )
+    vno_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Maximum structural cruising speed (Vno) in knots"
+    )
+    vne_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Never exceed speed (Vne) in knots"
+    )
     max_takeoff_weight = models.IntegerField(
         null=True, 
         blank=True,
@@ -212,6 +305,14 @@ class AircraftCorrection(models.Model):
         ('clean_stall_speed', 'Clean stall speed'),
         ('top_speed', 'Top speed'),
         ('maneuvering_speed', 'Maneuvering speed'),
+        ('cruise_speed', 'Cruise speed'),
+        ('vx_speed', 'Best angle of climb speed (Vx)'),
+        ('vy_speed', 'Best rate of climb speed (Vy)'),
+        ('vs0_speed', 'Stall speed landing configuration (Vs0)'),
+        ('vg_speed', 'Best glide speed (Vg)'),
+        ('vfe_speed', 'Maximum flap extended speed (Vfe)'),
+        ('vno_speed', 'Maximum structural cruising speed (Vno)'),
+        ('vne_speed', 'Never exceed speed (Vne)'),
         ('max_takeoff_weight', 'Maximum takeoff weight'),
         ('seating_capacity', 'Seating capacity'),
         ('retractable_gear', 'Retractable gear'),

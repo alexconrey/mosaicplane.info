@@ -1,0 +1,20 @@
+{
+  "model": "sonnet",
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "WebSearch(*)",
+      "Read(*)",
+      "Search(*)",
+      "Edit(*)",
+      "Write(*)",
+      "WebFetch(*)",
+      "Fetch(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "Task(*)",
+      "TodoWrite(*)",
+      "Update(*)"
+    ]
+  }
+}

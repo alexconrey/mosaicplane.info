@@ -7,5 +7,5 @@ router.register(r'manufacturers', ManufacturerViewSet)
 router.register(r'aircraft', AircraftViewSet)
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
+    path('', include(router.urls)),
 ]

@@ -116,6 +116,7 @@ The `api` will be a Django based application, written in Python, which construct
    - By pilot certificate requirements (Sport/Private/Not Eligible)
    - By manufacturer with aircraft counts
    - By seating capacity (2 vs 4 seats)
+   - Dynamic certification year range filtering with vue-slider-component@next
    - Search by aircraft model and manufacturer name
    - Pagination for large datasets
 
@@ -128,10 +129,12 @@ The `api` will be a Django based application, written in Python, which construct
 ### User Experience Goals (Achieved)
 - **✅ Mobile-First Design**: Fully responsive across all devices with mobile-optimized layouts
 - **✅ Performance Focused**: Fast loading with efficient API calls and pagination
-- - **✅ Educational**: Comprehensive MOSAIC explanations and contextual help
+- **✅ Educational**: Comprehensive MOSAIC explanations and contextual help
 - **✅ Transparent**: All limitations, requirements, and data sources clearly visible
-- **✅ Accessible**: Legend dropdowns, proper ARIA labels, keyboard navigation
-- **✅ Interactive**: Clickable aircraft links, correction forms, theme switching
+- **✅ Accessible**: Legend dropdowns, proper ARIA labels, keyboard navigation, skip links
+- **✅ Interactive**: Clickable aircraft links, correction forms, theme switching, navigation menu
+- **✅ Professional Components**: Modern slider components with tooltip positioning
+- **✅ API-Driven Filtering**: Dynamic year ranges based on actual certification data
 
 # Technical Criteria
 * Database will be SQLite (changed from PostgreSQL for simplicity)
@@ -151,18 +154,33 @@ The `api` will be a Django based application, written in Python, which construct
 * **Configuration**: `src/ui/wrangler.toml` with environment-specific variables
 * **URL**: https://mosaicplane-info-ui.ajcblz2019.workers.dev/
 
-### ✅ Unified Docker Container
-* **Build Command**: `make docker-prod`
-* **Single Dockerfile**: Simplified multi-stage build with runtime environment detection
-* **Architecture**: nginx reverse proxy + Django API server for production-ready deployment
-* **Smart API Routing**: Frontend automatically detects deployment context (Docker, Cloudflare Workers, development)
+### ✅ Heroku Container Registry
+* **API Deployment**: Django API deployed to Heroku using container registry
+* **Build Command**: `heroku container:push --app api-mosaicplane-info web`
 * **Features**: 
   - Automatic database migrations and data seeding on startup
-  - Built Vue.js assets served efficiently by nginx
-  - Runtime environment variable configuration (no build-time dependencies)
-  - Self-contained deployment ready for any container platform
-* **Port**: Exposes port 8000 with nginx handling static assets and API proxying
-* **Environment Variables**: Optional runtime configuration for different deployment scenarios
+  - Production-ready with gunicorn WSGI server
+  - Environment variable configuration via Heroku config
+  - CORS enabled for cross-origin requests from frontend
+* **URL**: https://api.mosaicplane.info
+* **Architecture**: Single Django container serving API endpoints at `/v1/aircraft/`, `/v1/manufacturers/`, etc.
+
+### ✅ Docker Compose Development
+* **Command**: `docker compose up`
+* **Architecture**: Multi-service setup with nginx reverse proxy
+  - **nginx**: Main entry point on port 8080, handles routing
+  - **api**: Django container (internal port 8000)
+  - **ui**: Vue.js development server (internal port 3000)
+* **Routing**:
+  - `http://localhost:8080/` → Vue.js UI
+  - `http://localhost:8080/api/` → Django API (nginx strips `/api/` prefix)
+* **Features**:
+  - Live development with hot reload
+  - Multi-platform Docker builds with automatic platform detection
+  - Docker-specific Vite configuration excluding Cloudflare Workers plugin
+  - Volume mounts for source code changes
+  - CORS configuration for cross-service communication
+  - Platform compatibility fixes for Apple Silicon and Intel architectures
 
 ## Reference Material
 * MOSAIC Final Issuance PDF: https://www.faa.gov/newsroom/MOSAIC_Final_Rule_Issuance.pdf

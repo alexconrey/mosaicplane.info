@@ -17,7 +17,7 @@
         <div class="controls-header">
           <h3>Aircraft Database</h3>
           <div class="controls-stats">
-            <span class="badge badge-info">{{ aircraft.length }} aircraft</span>
+            <span class="badge" :class="aircraft.length === 0 ? 'badge-error badge-pulse' : 'badge-info'">{{ aircraft.length }} Total Aircraft</span>
             <div class="eligibility-legend">
               <button 
                 @click="showLegend = !showLegend" 
@@ -169,37 +169,18 @@
           </div>
 
           <!-- Year Range Filter -->
-          <div class="control-group">
+          <div v-if="minYear && maxYear" class="control-group">
             <label>Certification Year Range</label>
             <div class="year-range-container">
-              <div class="year-range-labels">
-                <span class="year-label">{{ selectedMinYear }}</span>
-                <span class="year-label">{{ selectedMaxYear }}</span>
-              </div>
-              <div class="year-slider-container">
-                <input
-                  id="min-year-slider"
-                  type="range"
-                  v-model="selectedMinYear"
-                  :min="minYear"
-                  :max="maxYear"
-                  class="year-slider year-slider-min"
-                  aria-label="Minimum certification year"
-                  :aria-valuetext="`From year ${selectedMinYear}`"
-                  @input="adjustYearRange"
-                />
-                <input
-                  id="max-year-slider"
-                  type="range"
-                  v-model="selectedMaxYear"
-                  :min="minYear"
-                  :max="maxYear"
-                  class="year-slider year-slider-max"
-                  aria-label="Maximum certification year"
-                  :aria-valuetext="`To year ${selectedMaxYear}`"
-                  @input="adjustYearRange"
-                />
-              </div>
+              <VueSlider
+                v-model="yearRange"
+                :min="minYear"
+                :max="maxYear"
+                :tooltip="'always'"
+                :tooltip-placement="'bottom'"
+                :height="6"
+                class="year-range-slider"
+              />
             </div>
           </div>
 
@@ -254,9 +235,12 @@
     <!-- Error State -->
     <div v-else-if="error" class="error-container" role="alert">
       <div class="card">
-        <h3>Error Loading Data</h3>
-        <p>{{ error }}</p>
-        <button @click="fetchData" class="btn btn-primary">Retry</button>
+        <h3><strong>{{ errorTitle }}</strong></h3>
+        <p>{{ errorMessage }}</p>
+        <div class="error-buttons">
+          <button @click="fetchData" class="btn btn-primary">Retry</button>
+          <button @click="takeABreak" class="btn btn-secondary">Take a break</button>
+        </div>
       </div>
     </div>
 
@@ -544,6 +528,8 @@
 import { ref, computed, onMounted, watch, inject } from 'vue'
 import Tooltip from './Tooltip.vue'
 import { apiRequest } from '../utils/api.js'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 
 const emit = defineEmits(['aircraft-selected'])
 const props = defineProps({
@@ -562,6 +548,52 @@ const manufacturers = ref([])
 const loading = ref(true)
 const error = ref(null)
 
+// Humorous error state
+const errorTitle = ref('')
+const errorMessage = ref('')
+
+// Technical nonsense problems for error titles
+const technicalProblems = [
+  'Flux capacitor on verge of failure',
+  'Quantum entanglement matrix destabilized', 
+  'Dilithium crystal alignment error',
+  'Hyperspace engine requires recalibration',
+  'Temporal displacement buffer overflow',
+  'Tachyon emission levels critically low',
+  'Warp core containment field fluctuating',
+  'Subspace communication array malfunctioning',
+  'Ion drive manifold pressure anomaly detected',
+  'Gravitational wave interference detected',
+  'Dark matter injection system offline',
+  'Antimatter containment field weakening',
+  'Plasma conduit experiencing cascade failure',
+  'Neutron flow regulator stuck in reverse',
+  'Chronometer synchronization protocol failed',
+  'Dimensional stabilizer needs urgent repair',
+  'Particle accelerator running backwards',
+  'Space-time continuum experiencing hiccups',
+  'Electromagnetic field generator overheating',
+  'Cosmic ray deflector shield malfunctioning'
+]
+
+// Get or initialize engineer count from localStorage with decrement
+const getEngineerCount = () => {
+  const stored = localStorage.getItem('engineerCount')
+  let count = stored ? parseInt(stored) : 72
+  
+  if (count > 0) {
+    count -= 1
+    localStorage.setItem('engineerCount', count.toString())
+  }
+  
+  return count
+}
+
+// Reset engineer count when API is working again
+const resetEngineerCount = () => {
+  localStorage.setItem('engineerCount', '72')
+}
+
 // Filter state
 const searchQuery = ref('')
 const manufacturerFilter = ref('all')
@@ -571,8 +603,7 @@ const showOnlyMosaic = ref(!branding.showAllAircraft.value)
 const selectedBadges = ref(branding.isMosaicPlane.value ? ['Sport Pilot'] : [])
 
 // Year range filter state
-const selectedMinYear = ref(1940)
-const selectedMaxYear = ref(2025)
+const yearRange = ref([1940, 2025])
 
 // Pagination state
 const selectedItemsPerPage = ref(typeof window !== 'undefined' && window.innerWidth >= 768 ? '25' : '10')
@@ -632,7 +663,7 @@ const filteredAircraft = computed(() => {
   filtered = filtered.filter(a => {
     if (!a.certification_date) return true // Include aircraft without certification date
     const year = new Date(a.certification_date).getFullYear()
-    return year >= parseInt(selectedMinYear.value) && year <= parseInt(selectedMaxYear.value)
+    return year >= parseInt(yearRange.value[0]) && year <= parseInt(yearRange.value[1])
   })
 
   // Badge-based filtering
@@ -729,19 +760,19 @@ const someSelected = computed(() =>
 
 // Year range computed properties
 const minYear = computed(() => {
-  if (aircraft.value.length === 0) return 1940
+  if (aircraft.value.length === 0) return null
   const years = aircraft.value
     .map(a => a.certification_date ? new Date(a.certification_date).getFullYear() : null)
     .filter(year => year !== null)
-  return years.length > 0 ? Math.min(...years) : 1940
+  return years.length > 0 ? Math.min(...years) : null
 })
 
 const maxYear = computed(() => {
-  if (aircraft.value.length === 0) return 2025
+  if (aircraft.value.length === 0) return null
   const years = aircraft.value
     .map(a => a.certification_date ? new Date(a.certification_date).getFullYear() : null)
     .filter(year => year !== null)
-  return years.length > 0 ? Math.max(...years) : 2025
+  return years.length > 0 ? Math.max(...years) : null
 })
 
 // Methods
@@ -765,12 +796,33 @@ const fetchData = async () => {
 
     aircraft.value = aircraftData.results || aircraftData
     manufacturers.value = manufacturersData.results || manufacturersData
+    
+    // Reset engineer count since API is working
+    resetEngineerCount()
+    
   } catch (err) {
     console.error('Error fetching data:', err)
-    error.value = 'Failed to load aircraft data. Please check that the API server is running.'
+    
+    // Generate humorous error
+    const randomProblem = technicalProblems[Math.floor(Math.random() * technicalProblems.length)]
+    const engineerCount = getEngineerCount()
+    
+    error.value = true
+    errorTitle.value = randomProblem
+    errorMessage.value = engineerCount > 1 
+      ? `Our dedicated team of ${engineerCount} carrier pigeons are working diligently to resolve this issue.`
+      : engineerCount === 1
+      ? `Our dedicated team of 1 carrier pigeon is working diligently to resolve this issue.`
+      : 'Maybe if you stop refreshing, the carrier pigeons will have time to fix this.'
+      
   } finally {
     loading.value = false
   }
+}
+
+// Open relaxing YouTube video in new tab
+const takeABreak = () => {
+  window.open('https://www.youtube.com/watch?v=ia8Q51ouA_s', '_blank')
 }
 
 const isSelected = (aircraftItem) => selectedIds.value.has(aircraftItem.id)
@@ -812,20 +864,13 @@ const clearFilters = () => {
   showOnlyMosaic.value = !branding.showAllAircraft.value
   // Reset to default badge filters (Sport Pilot for MosaicPlane.info)
   selectedBadges.value = branding.isMosaicPlane.value ? ['Sport Pilot'] : []
-  // Reset year range to full range
-  selectedMinYear.value = minYear.value
-  selectedMaxYear.value = maxYear.value
+  // Reset year range to full range (only if we have year data)
+  if (minYear.value && maxYear.value) {
+    yearRange.value = [minYear.value, maxYear.value]
+  }
   currentPage.value = 1
 }
 
-const adjustYearRange = () => {
-  // Ensure min year is not greater than max year
-  if (parseInt(selectedMinYear.value) > parseInt(selectedMaxYear.value)) {
-    const temp = selectedMinYear.value
-    selectedMinYear.value = selectedMaxYear.value
-    selectedMaxYear.value = temp
-  }
-}
 
 const sortBy = (field) => {
   if (sortField.value === field) {
@@ -915,17 +960,17 @@ const getBadgeClass = (badgeName) => {
 }
 
 // Watch for filter changes and reset pagination
-watch([searchQuery, manufacturerFilter, seatingFilter, showOnlyMosaic, selectedBadges, selectedItemsPerPage, selectedMinYear, selectedMaxYear], () => {
+watch([searchQuery, manufacturerFilter, seatingFilter, showOnlyMosaic, selectedBadges, selectedItemsPerPage, yearRange], () => {
   currentPage.value = 1
 })
 
 // Initialize year range when aircraft data is loaded
 watch(aircraft, () => {
-  if (aircraft.value.length > 0) {
-    // Only set initial values if they haven't been set by the user
-    if (selectedMinYear.value === 1940 && selectedMaxYear.value === 2025) {
-      selectedMinYear.value = minYear.value
-      selectedMaxYear.value = maxYear.value
+  if (aircraft.value.length > 0 && minYear.value && maxYear.value) {
+    // Only set initial values if they haven't been set yet or are still default values
+    if (!yearRange.value || yearRange.value.length !== 2 || 
+        (yearRange.value[0] === 1940 && yearRange.value[1] === 2025)) {
+      yearRange.value = [minYear.value, maxYear.value]
     }
   }
 }, { immediate: true })
@@ -1297,6 +1342,13 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   padding: 3rem 0;
+
+.error-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 }
 
 .empty-state {
@@ -1616,6 +1668,10 @@ tbody tr.selected {
   gap: 0.5rem;
 }
 
+.year-range-slider {
+  margin: 1rem 0;
+}
+
 .year-range-labels {
   display: flex;
   justify-content: space-between;
@@ -1741,5 +1797,51 @@ tbody tr:focus {
 
 .sortable:focus-visible {
   background-color: var(--bg-secondary);
+}
+
+/* Error badge styling with red glow */
+.badge-error {
+  background-color: #dc2626 !important;
+  color: white !important;
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+
+/* Pulsing animation for error state */
+.badge-pulse {
+  animation: pulse-error 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-error {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.9), 0 0 24px rgba(239, 68, 68, 0.4);
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .badge-error {
+  background-color: #dc2626 !important;
+  border-color: #f87171;
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+}
+
+[data-theme="dark"] .badge-pulse {
+  animation: pulse-error-dark 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-error-dark {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 16px rgba(248, 113, 113, 0.9), 0 0 24px rgba(248, 113, 113, 0.4);
+  }
 }
 </style>

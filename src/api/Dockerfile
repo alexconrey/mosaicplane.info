@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+ARG PLATFORM=linux/amd64
+FROM --platform=${PLATFORM} python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1

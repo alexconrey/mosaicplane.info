@@ -1,5 +1,9 @@
 # MOSAIC Plane Info - Development Makefile
-.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs docker-prod cf-deploy-dev cf-deploy-prod cf-dev cf-tail
+.PHONY: help install dev build test clean docker-build docker-up docker-down docker-logs cf-deploy-dev cf-deploy-prod cf-dev cf-tail
+
+# Configuration variables
+PLAYWRIGHT_VERSION := v1.55.0
+PLAYWRIGHT_IMAGE := mcr.microsoft.com/playwright:$(PLAYWRIGHT_VERSION)-jammy
 
 # Default target
 help:
@@ -8,14 +12,16 @@ help:
 	@echo "  dev          - Start development servers (API and UI)"
 	@echo "  build        - Build production assets"
 	@echo "  test         - Run all tests"
+	@echo "  e2e          - Run E2E tests with Playwright in Docker"
+	@echo "  e2e-headed   - Run E2E tests with headed browser in Docker"
 	@echo "  clean        - Clean build artifacts and dependencies"
+	@echo "  precommit    - Run pre-commit hooks in Docker container"
 	@echo ""
 	@echo "Docker targets:"
 	@echo "  docker-build - Build Docker containers"
 	@echo "  docker-up    - Start services with Docker Compose"
 	@echo "  docker-down  - Stop Docker Compose services"
 	@echo "  docker-logs  - Show Docker Compose logs"
-	@echo "  docker-prod  - Build production Docker container with environment variables"
 	@echo ""
 	@echo "Cloudflare deployment:"
 	@echo "  cf-deploy-dev     - Deploy UI to Cloudflare Workers (development)"
@@ -27,6 +33,7 @@ help:
 	@echo "  api-install  - Install Python dependencies"
 	@echo "  api-dev      - Start Django development server"
 	@echo "  api-test     - Run Django tests"
+	@echo "  api-typecheck - Run mypy type checking on Django API"
 	@echo "  ui-install   - Install Node.js dependencies"
 	@echo "  ui-dev       - Start Vue development server"
 	@echo "  ui-test      - Run Vue tests"
@@ -47,6 +54,40 @@ build: ui-build
 
 # Run all tests
 test: api-test ui-test
+
+# E2E tests with Playwright in Docker
+e2e:
+	@echo "Running E2E tests with Playwright in Docker container..."
+	@echo "Make sure development servers are running: make dev"
+	docker run --rm --network host \
+		-e DOCKER_E2E=true \
+		-v $(PWD)/src/ui:/work \
+		-w /work \
+		$(PLAYWRIGHT_IMAGE) \
+		bash -c "npm ci && npx playwright test"
+
+# E2E tests with headed browser (for debugging)
+e2e-headed:
+	@echo "Running E2E tests with headed browser in Docker container..."
+	@echo "Make sure development servers are running: make dev"
+	docker run --rm --network host \
+		-e DOCKER_E2E=true \
+		-e DISPLAY=${DISPLAY} \
+		-v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+		-v $(PWD)/src/ui:/work \
+		-w /work \
+		$(PLAYWRIGHT_IMAGE) \
+		bash -c "npm ci && npx playwright test --headed"
+
+# Pre-commit hooks execution
+precommit:
+	@echo "Running pre-commit hooks in Docker container..."
+	docker run --rm \
+		-v $(PWD):/work \
+		-w /work \
+		--env PRE_COMMIT_HOME=/tmp/.pre-commit \
+		precommitci/pre-commit-with-plugins:latest \
+		pre-commit run --all-files
 
 # Clean build artifacts
 clean:
@@ -72,22 +113,27 @@ api-test:
 	@echo "Running Django tests..."
 	cd src/api && python manage.py test
 
-# UI targets
+api-typecheck:
+	@echo "Running mypy type checking on Django API..."
+	cd src/api && python -m mypy .
+
+# UI targets (using Docker containers for consistency)
 ui-install:
-	@echo "Installing Node.js dependencies..."
-	cd src/ui && npm install
+	@echo "Installing Node.js dependencies using Docker container..."
+	docker-compose run --rm ui npm install
 
 ui-dev:
-	@echo "Starting Vue development server..."
-	cd src/ui && npm run dev
+	@echo "Starting Vue development server using Docker container..."
+	@echo "UI will be available at http://localhost:3000"
+	docker-compose up ui
 
 ui-test:
-	@echo "Running Vue tests..."
-	cd src/ui && npm run test
+	@echo "Running Vue tests using Docker container..."
+	docker-compose run --rm ui npm run test
 
 ui-build:
-	@echo "Building production Vue assets..."
-	cd src/ui && npm run build
+	@echo "Building production Vue assets using Docker container..."
+	docker-compose run --rm ui npm run build
 
 # Docker targets
 docker-build:
@@ -96,8 +142,10 @@ docker-build:
 
 docker-up:
 	@echo "Starting services with Docker Compose..."
-	@echo "API will be available at http://localhost:8000"
-	@echo "UI will be available at http://localhost:3000"
+	@echo "Application will be available at http://localhost:8080 (nginx reverse proxy)"
+	@echo "  - UI: http://localhost:8080/"
+	@echo "  - API: http://localhost:8080/api/v1/"
+	@echo "  - API Docs: http://localhost:8080/api/docs/"
 	docker-compose up -d
 
 docker-down:
@@ -108,38 +156,20 @@ docker-logs:
 	@echo "Showing Docker Compose logs..."
 	docker-compose logs -f
 
-# Cloudflare Workers deployment targets
+# Cloudflare Workers deployment targets (using Docker containers)
 cf-deploy-dev:
-	@echo "Deploying UI to Cloudflare Workers (development)..."
-	cd src/ui && npm run deploy:dev
-
+	@echo "Deploying UI to Cloudflare Workers (development) using Docker container..."
+	docker-compose run --rm ui npm run deploy:dev
 
 cf-deploy-prod:
-	@echo "Deploying UI to Cloudflare Workers (production)..."
-	cd src/ui && npm run deploy:prod
+	@echo "Deploying UI to Cloudflare Workers (production) using Docker container..."
+	docker-compose run --rm ui npm run deploy:prod
 
 cf-dev:
-	@echo "Starting local Cloudflare Workers development server..."
-	cd src/ui && npm run cf:dev
+	@echo "Starting local Cloudflare Workers development server using Docker container..."
+	docker-compose run --rm --service-ports ui npm run cf:dev
 
 cf-tail:
-	@echo "Showing Cloudflare Workers logs..."
-	cd src/ui && npm run cf:tail
+	@echo "Showing Cloudflare Workers logs using Docker container..."
+	docker-compose run --rm ui npm run cf:tail
 
-# Production Docker container target
-docker-prod:
-	@echo "Building production Docker container..."
-	@echo "This will create a standalone container with:"
-	@echo "  - Django server serving API and static assets"
-	@echo "  - Built Vue.js static assets integrated into Django"
-	@echo "  - Runtime environment variable configuration"
-	docker build -t mosaicplane-info:production .
-	@echo ""
-	@echo "Production container built successfully!"
-	@echo "Run with:"
-	@echo "  docker run -p 8000:8000 mosaicplane-info:production"
-	@echo ""
-	@echo "Optional environment variables:"
-	@echo "  -e API_BASE_URL=https://api.mosaicplane.info"
-	@echo "  -e DATABASE_URL=sqlite:///app/data/db.sqlite3"
-	@echo "  -e ENVIRONMENT=production"

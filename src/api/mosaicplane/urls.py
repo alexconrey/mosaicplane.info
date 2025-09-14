@@ -25,13 +25,16 @@ import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('aircraft.urls')),
     # OpenAPI 3 schema
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     # Swagger UI
     path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     # ReDoc UI
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    # Aircraft API endpoints
+    path('v1/', include('aircraft.urls')),
+    # API Landing Page (for root path after nginx strips /api/ prefix)
+    path('', TemplateView.as_view(template_name='api_landing.html'), name='api-landing'),
 ]
 
 # Serve static files and Vue.js SPA

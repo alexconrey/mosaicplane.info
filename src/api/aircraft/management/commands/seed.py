@@ -176,6 +176,7 @@ class Command(BaseCommand):
                 'clean_stall_speed': 50.0,
                 'top_speed': 121.0,
                 'maneuvering_speed': 104.0,
+                'cruise_speed': 108.0,
                 'max_takeoff_weight': 2200,
                 'seating_capacity': 4,
                 'retractable_gear': False,
@@ -777,7 +778,15 @@ class Command(BaseCommand):
                 'retractable_gear': False,
                 'variable_pitch_prop': False,
                 'certification_date': date(1964, 1, 1),
-                'verification_source': 'Type Certificate Data Sheet A1CE',
+                'verification_source': 'Cherokee 140 POH, Quizlet study materials, and Pilots of America forum',
+                # V-Speed data from Cherokee 140 POH and pilot resources
+                'vx_speed': 70.0,  # 74 mph best angle of climb
+                'vy_speed': 80.0,  # 85 mph best rate of climb
+                'vs0_speed': 47.0, # 55 mph stall with flaps/gear extended
+                'vg_speed': 75.0,  # Estimated best glide speed
+                'vfe_speed': 98.0, # 115 mph max flap extended speed
+                'vno_speed': 120.0, # 140 mph max normal operating speed
+                'vne_speed': 147.0, # 171 mph never exceed speed
                 'engine_specs': {'manufacturer': 'Lycoming', 'model': 'O-320-E2A', 'horsepower': 140}
             },
             {
@@ -993,7 +1002,15 @@ class Command(BaseCommand):
                 'retractable_gear': True,
                 'variable_pitch_prop': True,
                 'certification_date': date(1962, 1, 1),
-                'verification_source': 'Type Certificate Data Sheet A3SW',
+                'verification_source': 'Mooneyspace.com forum discussion and 1977 POH',
+                # V-Speed data from Mooneyspace forum and POH references
+                'vx_speed': 69.5,  # 80 mph best angle of climb
+                'vy_speed': 91.2,  # 105 mph best rate of climb (flaps retracted)
+                'vs0_speed': 49.0,  # Full flaps + gear down stall speed
+                'vg_speed': 75.0,   # Estimated best glide speed
+                'vfe_speed': 108.6, # 125 mph flaps extended speed (post-1968)
+                'vno_speed': 152.1, # 175 mph normal operating speed (post-1969)
+                'vne_speed': 173.8, # 200 mph never exceed speed (post-1969)
                 'engine_specs': {'manufacturer': 'Lycoming', 'model': 'O-320-E2A', 'horsepower': 150}
             },
             {
@@ -1584,7 +1601,16 @@ class Command(BaseCommand):
                 'retractable_gear': False,
                 'variable_pitch_prop': False,
                 'certification_date': date(2006, 11, 8),
-                'verification_source': 'Flight Design CTLS POH, FAA LSA certification',
+                'verification_source': 'FlightDesignUSA specifications and Flight Design CTLS POH',
+                # V-Speed data from FlightDesignUSA website and estimated from LSA performance
+                'vx_speed': 55.0,   # Estimated best angle of climb
+                'vy_speed': 65.0,   # Estimated best rate of climb
+                'vs0_speed': 39.0,  # Confirmed stall speed landing configuration
+                'vg_speed': 70.0,   # Estimated best glide speed
+                'vfe_speed': 85.0,  # Estimated flaps extended speed
+                'vno_speed': 120.0, # Estimated normal operating speed
+                'vne_speed': 145.0, # Confirmed never exceed speed
+                'cruise_speed': 115.0, # Confirmed cruise speed at 75% power
                 'engine_specs': {'manufacturer': 'Rotax', 'model': '912ULS', 'horsepower': 100}
             },
             {

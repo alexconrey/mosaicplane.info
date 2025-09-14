@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
     'api.mosaicplane.info',
     'api-mosaicplane-info.herokuapp.com',
+    'api.aircraftdb.info',
 ]
 
 # Allow additional hosts from environment variable
@@ -71,7 +72,7 @@ ROOT_URLCONF = 'mosaicplane.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -165,6 +166,8 @@ SPECTACULAR_SETTINGS = {
 CORS_ALLOWED_ORIGINS = [
     "https://mosaicplane.info",
     "https://www.mosaicplane.info",
+    "https://aircraftdb.info",
+    "https://www.aircraftdb.info",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
@@ -190,3 +193,66 @@ CORS_ALLOWED_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Security Settings
+# HTTPS enforcement
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Security cookies and headers
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Session security
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = False
+
+# CSRF protection
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_TRUSTED_ORIGINS = [
+    'https://mosaicplane.info',
+    'https://www.mosaicplane.info',
+    'https://api.mosaicplane.info',
+    'https://api-mosaicplane-info.herokuapp.com',
+]
+
+# Additional CSRF origins from environment
+if csrf_origins := os.environ.get('CSRF_TRUSTED_ORIGINS'):
+    CSRF_TRUSTED_ORIGINS.extend(csrf_origins.split(','))
+
+# X-Frame-Options
+X_FRAME_OPTIONS = 'DENY'
+
+# Rate limiting and security
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO' if not DEBUG else 'DEBUG',
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

@@ -17,6 +17,7 @@ class Command(BaseCommand):
                 'clean_stall_speed': 50.0,
                 'top_speed': 121.0,
                 'maneuvering_speed': 104.0,
+                'cruise_speed': 108.0,
                 'max_takeoff_weight': 2200,
                 'seating_capacity': 4,
                 'retractable_gear': False,

@@ -13,15 +13,59 @@
             </h1>
             <p class="subtitle">{{ siteTagline }}</p>
           </div>
-          <button 
-            @click="toggleTheme" 
-            class="btn btn-secondary theme-toggle"
-            :aria-label="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`"
-            :title="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`"
-          >
-            <span aria-hidden="true">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
-            <span class="desktop-only">{{ theme === 'light' ? 'Dark' : 'Light' }}</span>
-          </button>
+          <div class="header-controls">
+            <button 
+              @click="toggleTheme" 
+              class="btn btn-secondary theme-toggle"
+              :aria-label="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`"
+              :title="`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`"
+            >
+              <span aria-hidden="true">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
+              <span class="desktop-only">{{ theme === 'light' ? 'Dark' : 'Light' }}</span>
+            </button>
+            <div class="nav-dropdown" @click="toggleNavDropdown" @blur="closeNavDropdown" tabindex="0">
+              <button 
+                class="btn btn-secondary nav-toggle"
+                :aria-label="showNavDropdown ? 'Close navigation menu' : 'Open navigation menu'"
+                :aria-expanded="showNavDropdown"
+                aria-haspopup="true"
+              >
+                <span aria-hidden="true">☰</span>
+                <span class="desktop-only">Menu</span>
+              </button>
+              <div 
+                v-if="showNavDropdown" 
+                class="nav-dropdown-content"
+                role="menu"
+                aria-label="Navigation menu"
+              >
+                <router-link 
+                  to="/manufacturers" 
+                  class="nav-dropdown-item"
+                  role="menuitem"
+                  @click="closeNavDropdown"
+                >
+                  🏭 Manufacturers
+                </router-link>
+                <router-link 
+                  to="/mosaic" 
+                  class="nav-dropdown-item"
+                  role="menuitem"
+                  @click="closeNavDropdown"
+                >
+                  📋 MOSAIC Info
+                </router-link>
+                <router-link 
+                  to="/about" 
+                  class="nav-dropdown-item"
+                  role="menuitem"
+                  @click="closeNavDropdown"
+                >
+                  ℹ️ About
+                </router-link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -52,16 +96,20 @@
     <!-- Footer -->
     <footer class="footer" role="contentinfo">
       <div class="container">
-        <div class="flex justify-center items-center flex-col gap-2">
-          <p class="text-secondary">
-            Data based on FAA MOSAIC Final Rule (July 2025)
-          </p>
-          <p class="text-secondary">
-            <small>
-              API: <a href="/api/docs/" target="_blank" class="text-accent" aria-label="API Documentation (opens in new tab)">Documentation</a> |
-              <router-link to="/about#legal-disclaimer" class="text-accent">Legal Disclaimer</router-link>
-            </small>
-          </p>
+        <div class="footer-content">
+          <div class="footer-left"></div>
+          <div class="footer-center">
+            <p class="text-secondary">
+              Data based on FAA MOSAIC Final Rule (July 2025)
+            </p>
+            <p class="text-secondary">
+              <small>
+                API: <a href="/api/docs/" target="_blank" class="text-accent" aria-label="API Documentation (opens in new tab)">Documentation</a> |
+                <router-link to="/about#legal-disclaimer" class="text-accent">Legal Disclaimer</router-link>
+              </small>
+            </p>
+          </div>
+          <div class="footer-right"></div>
         </div>
       </div>
     </footer>
@@ -69,12 +117,24 @@
 </template>
 
 <script setup>
-import { onMounted, provide } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useBranding } from './composables/useBranding'
 
 const { theme, toggleTheme } = useTheme()
 const { siteName, siteTagline, showAllAircraft, isMosaicPlane } = useBranding()
+
+// Navigation dropdown state
+const showNavDropdown = ref(false)
+
+
+const toggleNavDropdown = () => {
+  showNavDropdown.value = !showNavDropdown.value
+}
+
+const closeNavDropdown = () => {
+  showNavDropdown.value = false
+}
 
 // Provide theme and branding to child components
 provide('theme', theme)
@@ -83,6 +143,13 @@ provide('branding', { siteName, siteTagline, showAllAircraft, isMosaicPlane })
 onMounted(() => {
   // Set initial theme on document
   document.documentElement.setAttribute('data-theme', theme.value)
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.nav-dropdown')) {
+      closeNavDropdown()
+    }
+  })
 })
 </script>
 
@@ -113,9 +180,70 @@ onMounted(() => {
   margin: 0;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-toggle {
+  min-width: 3rem;
+  height: 3rem;
+}
+
+.nav-dropdown-content {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+  z-index: 200;
+  animation: slideDown 0.2s ease-out;
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.nav-dropdown-item:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.nav-dropdown-item:first-child {
+  border-radius: 0.5rem 0.5rem 0.25rem 0.25rem;
+}
+
+.nav-dropdown-item:last-child {
+  border-radius: 0.25rem 0.25rem 0.5rem 0.5rem;
+}
+
 .theme-toggle {
   min-width: 3rem;
   height: 3rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .info-banner {
@@ -163,6 +291,35 @@ onMounted(() => {
   border-top: 1px solid var(--border-color);
   padding: 2rem 0;
   margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-left,
+.footer-right {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.footer-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.commit-info {
+  font-family: 'Courier New', Consolas, monospace;
+  opacity: 0.7;
+  font-size: 0.75rem;
 }
 
 .text-accent {
@@ -215,9 +372,22 @@ onMounted(() => {
 }
 
 /* Enhanced focus indicators */
-.theme-toggle:focus-visible {
+.theme-toggle:focus-visible,
+.nav-toggle:focus-visible {
   outline: 2px solid var(--text-accent);
   outline-offset: 2px;
+}
+
+.nav-dropdown:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.nav-dropdown-item:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 2px;
+  background-color: var(--bg-tertiary);
 }
 
 .header-link:focus-visible,
@@ -233,6 +403,20 @@ onMounted(() => {
     padding: 1rem 0;
   }
 
+  .header-controls {
+    gap: 0.25rem;
+  }
+
+  .nav-dropdown-content {
+    right: -0.5rem;
+    min-width: 160px;
+  }
+
+  .nav-dropdown-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
   .banner-content {
     flex-direction: column;
     text-align: center;
@@ -245,6 +429,20 @@ onMounted(() => {
 
   .main {
     padding: 1rem 0;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-left,
+  .footer-right {
+    min-width: auto;
+  }
+
+  .commit-info {
+    font-size: 0.7rem;
   }
 }
 </style>

@@ -22,16 +22,23 @@ The MOSAIC regulations represent a revolutionary change in general aviation, exp
 
 ### 🎯 User Interface
 - **Interactive Aircraft Table**: Searchable, filterable database with detailed aircraft pages
+- **Dynamic Year Range Filtering**: Professional slider component with API-driven certification date ranges
+- **Navigation Menu**: Accessible dropdown with MOSAIC information and About pages
 - **Mobile-Responsive Design**: Optimized for all devices with dark/light mode support
 - **Educational Content**: Comprehensive MOSAIC explanations and regulatory context
 - **Community Corrections**: User-friendly system for submitting data corrections
+- **Accessibility Features**: Skip links, ARIA labels, keyboard navigation support
+- **Multi-Domain Support**: Dynamic branding for multiple domains (mosaicplane.info, aircraftdb.info)
+- **SPA Routing**: Proper client-side routing with Cloudflare Workers integration
 
 ## Technology Stack
 
-- **Frontend**: Vue.js 3 with modern responsive design
+- **Frontend**: Vue.js 3 with Composition API and vue-slider-component@next
 - **Backend**: Django REST Framework with comprehensive API
 - **Database**: SQLite with verified MOSAIC-accurate data
 - **Documentation**: Swagger/OpenAPI integration
+- **Containerization**: Docker with multi-platform support and platform-specific configurations
+- **Development**: Vite with Cloudflare Workers integration and Docker-specific configs
 
 ## Quick Start
 
@@ -72,34 +79,55 @@ npm run dev
 ```
 
 ### Access Points
+
+#### Development (Individual Services)
 - **Application**: http://localhost:3000
 - **API Documentation**: http://localhost:8000/api/docs/
 - **Django Admin**: http://localhost:8000/admin
 
-## Production Deployment
-
-### Cloudflare Workers (Recommended)
-
-This application is optimized for deployment on Cloudflare Workers with static assets hosting.
-
+#### Docker Compose (Recommended for Local Development)
 ```bash
-# Deploy to production
-make cf-deploy-prod
+# Start all services with nginx reverse proxy
+docker compose up
 
-# Or deploy to development
-make cf-deploy-dev
+# Access the full application
+# Application: http://localhost:8080
 ```
 
-See [CLOUDFLARE_DEPLOYMENT.md](./CLOUDFLARE_DEPLOYMENT.md) for detailed deployment instructions.
+## Production Deployment
 
-### Docker Deployment
+### Multi-Platform Architecture
 
+#### Heroku Container Registry (API Backend)
 ```bash
-# Build and start with Docker Compose
-make docker-up
+# Deploy Django API to Heroku
+heroku container:push --app api-mosaicplane-info web
+heroku container:release --app api-mosaicplane-info web
 
-# Stop services
-make docker-down
+# Production API: https://api.mosaicplane.info
+```
+
+#### Cloudflare Workers (Frontend)
+```bash
+# Deploy Vue.js frontend to Cloudflare Workers
+make cf-deploy-prod
+
+# Production UI: https://mosaicplane.info
+```
+
+#### Docker Compose (Local Development)
+```bash
+# Full-stack development environment with nginx reverse proxy
+docker compose up
+
+# Access: http://localhost:8080
+# - UI requests → nginx → ui container (Vue.js dev server)
+# - API requests → nginx → api container (Django)
+
+# Features:
+# - Multi-platform builds (Apple Silicon & Intel)
+# - Docker-specific Vite config avoiding Cloudflare Workers conflicts
+# - Hot reload development with volume mounts
 ```
 
 ## Database Management
@@ -116,6 +144,18 @@ python manage.py review_corrections --list
 python manage.py review_corrections --show <ID>
 python manage.py review_corrections --approve <ID> --notes "Review notes"
 ```
+
+## Configuration & Deployment
+
+For detailed deployment configuration, troubleshooting, and lessons learned, see:
+📋 **[DEPLOYMENT_NOTES.md](./DEPLOYMENT_NOTES.md)**
+
+Key topics covered:
+- SPA routing configuration (`wrangler.toml`)
+- Multi-domain support setup
+- Build configuration fixes (terser, django-stubs)
+- Development vs production environments
+- Security and CORS configuration
 
 ## MOSAIC Regulation Summary
 
@@ -143,17 +183,24 @@ python manage.py review_corrections --approve <ID> --notes "Review notes"
 ## API Endpoints
 
 ### Core Resources
-- `GET /api/aircraft/` - List all aircraft with filtering
-- `GET /api/aircraft/{id}/` - Detailed aircraft specifications
-- `GET /api/manufacturers/` - Aircraft manufacturers
-- `GET /api/engines/` - Engine specifications
-- `POST /api/corrections/` - Submit data corrections
+- `GET /v1/aircraft/` - List all aircraft with filtering
+- `GET /v1/aircraft/{id}/` - Detailed aircraft specifications
+- `GET /v1/manufacturers/` - Aircraft manufacturers
+- `GET /v1/engines/` - Engine specifications
+- `POST /v1/corrections/` - Submit data corrections
+
+**Note**: In production, API endpoints are accessible via:
+- **Development**: Direct API calls to `localhost:8000/v1/...`
+- **Docker Compose**: Proxied through nginx at `localhost:8080/api/v1/...`
+- **Production**: Cross-origin requests to `https://api.mosaicplane.info/v1/...`
 
 ### Filtering Options
 - `?pilot_certificate=sport|private` - Filter by pilot requirements
 - `?manufacturer=<name>` - Filter by manufacturer
 - `?seating=2|4` - Filter by seating capacity
 - `?search=<term>` - Search aircraft models and manufacturers
+- **Dynamic Year Ranges**: UI automatically calculates min/max certification years from API data
+- **Professional Sliders**: Vue 3 compatible slider components with tooltip positioning
 
 ## Data Sources & Verification
 

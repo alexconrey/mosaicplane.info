@@ -9,12 +9,17 @@ test.describe('Aircraft Filtering', () => {
 
   test('should filter aircraft by eligibility badges', async ({ page }) => {
     // Get initial aircraft count
-    const countBadge = page.locator('.badge-info');
-    await expect(countBadge).toContainText(/\d+ aircraft/);
+    const countBadge = page.locator('.badge-info').filter({ hasText: 'Total Aircraft' });
+    await expect(countBadge).toContainText(/\d+ Total Aircraft/);
     
-    // Find a filter label button (e.g., Sport Pilot)
-    const sportPilotFilter = page.getByRole('button', { name: 'Sport Pilot' }).first();
-    
+    // Open legend dropdown first
+    const legendButton = page.locator('.legend-button');
+    await legendButton.click();
+
+    // Find a filter label button within the dropdown
+    const dropdown = page.locator('.legend-dropdown');
+    const sportPilotFilter = dropdown.locator('.badge').filter({ hasText: /^Sport Pilot$/ });
+
     if (await sportPilotFilter.isVisible()) {
       await sportPilotFilter.click();
       
@@ -81,21 +86,20 @@ test.describe('Aircraft Filtering', () => {
     
     // If there's enough data to paginate
     if (await paginationInfo.isVisible()) {
-      await expect(paginationInfo).toContainText(/Showing \d+-\d+ of \d+ aircraft/);
+      await expect(paginationInfo).toContainText(/Showing \d+-\d+ of \d+/);
     }
     
     if (await paginationButtons.isVisible()) {
-      // Check that pagination controls work
-      const nextButton = page.getByRole('button', { name: '2' }).or(
-        page.getByRole('button', { name: 'Next' })
-      );
-      
+      // Check that pagination controls work - look for page buttons within pagination area
+      const nextButton = paginationButtons.locator('button').filter({ hasText: /^2$|Next/ }).first();
+
       if (await nextButton.isVisible()) {
         await nextButton.click();
         await page.waitForTimeout(500);
         
         // Should still have aircraft data
-        await expect(page.locator('tbody tr')).toHaveCountGreaterThan(0);
+        const rowCount = await page.locator('tbody tr').count();
+        expect(rowCount).toBeGreaterThan(0);
       }
     }
   });
@@ -128,15 +132,19 @@ test.describe('Aircraft Filtering', () => {
   });
 
   test('should reset to page 1 when filtering', async ({ page }) => {
-    // If we have pagination, go to page 2 first
-    const page2Button = page.getByRole('button', { name: '2' });
-    
+    // If we have pagination, go to page 2 first - look within pagination area
+    const paginationArea = page.locator('.pagination');
+    const page2Button = paginationArea.locator('button').filter({ hasText: /^2$/ }).first();
+
     if (await page2Button.isVisible()) {
       await page2Button.click();
       await page.waitForTimeout(500);
       
-      // Now apply a filter
-      const anyFilter = page.getByRole('button', { name: 'Sport Pilot' }).first();
+      // Now apply a filter - open legend and click filter
+      const legendButton = page.locator('.legend-button');
+      await legendButton.click();
+      const dropdown = page.locator('.legend-dropdown');
+      const anyFilter = dropdown.locator('.badge').filter({ hasText: /^Sport Pilot$/ });
       if (await anyFilter.isVisible()) {
         await anyFilter.click();
         await page.waitForTimeout(500);

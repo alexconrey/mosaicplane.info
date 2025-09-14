@@ -80,118 +80,345 @@
 
       <!-- Aircraft Specifications -->
       <div class="specifications-grid">
-        <!-- Performance Specifications -->
-        <div class="card spec-card">
-          <h3>Performance Specifications</h3>
-          <div class="spec-grid">
-            <div class="spec-item">
-              <label>Clean Stall Speed (Vs1)</label>
-              <EditableField
-                field-name="clean_stall_speed"
-                :current-value="`${aircraft.clean_stall_speed} knots CAS`"
-                display-name="stall speed"
-                :is-editing="editingField === 'clean_stall_speed'"
-                :edit-form="editForm"
-                @start-edit="startEdit"
-                @save-edit="saveEdit"
-                @cancel-edit="cancelEdit"
-              >
-                <strong>{{ aircraft.clean_stall_speed }} knots CAS</strong>
-                <span class="spec-note">{{ getStallSpeedNote(aircraft.clean_stall_speed) }}</span>
-              </EditableField>
+        <!-- Aircraft Information -->
+        <div class="card spec-card full-width">
+          <h3>Aircraft Information</h3>
+          
+          <!-- MOSAIC Eligibility Summary -->
+          <div class="mosaic-summary">
+            <div class="eligibility-badge" :class="getMosaicEligibilityClass(aircraft)">
+              {{ getMosaicEligibilityText(aircraft) }}
             </div>
-            <div class="spec-item">
-              <label>Top Speed (Vne)</label>
-              <EditableField
-                field-name="top_speed"
-                :current-value="`${aircraft.top_speed} knots`"
-                display-name="top speed"
-                :is-editing="editingField === 'top_speed'"
-                :edit-form="editForm"
-                @start-edit="startEdit"
-                @save-edit="saveEdit"
-                @cancel-edit="cancelEdit"
-              >
-                {{ aircraft.top_speed }} knots
-              </EditableField>
+            <div class="key-specs">
+              <span v-if="aircraft.clean_stall_speed" class="key-spec">
+                Stall: {{ aircraft.clean_stall_speed }}kt
+              </span>
+              <span v-if="aircraft.max_takeoff_weight" class="key-spec">
+                MTOW: {{ aircraft.max_takeoff_weight.toLocaleString() }} lbs
+              </span>
+              <span class="key-spec">
+                Seats: {{ aircraft.seating_capacity }}
+              </span>
             </div>
-            <div class="spec-item">
-              <label>Maneuvering Speed (Va)</label>
-              <EditableField
-                field-name="maneuvering_speed"
-                :current-value="`${aircraft.maneuvering_speed} knots`"
-                display-name="maneuvering speed"
-                :is-editing="editingField === 'maneuvering_speed'"
-                :edit-form="editForm"
-                @start-edit="startEdit"
-                @save-edit="saveEdit"
-                @cancel-edit="cancelEdit"
-              >
-                {{ aircraft.maneuvering_speed }} knots
-              </EditableField>
+          </div>
+
+          <!-- 2x2 Grid Layout -->
+          <div class="aircraft-info-grid">
+            <!-- Top Left: Flight Envelope -->
+            <div class="info-section">
+              <h4>Flight Envelope</h4>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <div class="spec-label">Clean Stall (Vs1)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="clean_stall_speed"
+                      :current-value="`${aircraft.clean_stall_speed} knots CAS`"
+                      display-name="stall speed"
+                      :is-editing="editingField === 'clean_stall_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      <strong>{{ aircraft.clean_stall_speed }}kt</strong>
+                      <span class="spec-note">{{ getStallSpeedNote(aircraft.clean_stall_speed) }}</span>
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vs0_speed">
+                  <div class="spec-label">Landing Stall (Vs0)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vs0_speed"
+                      :current-value="`${aircraft.vs0_speed} knots`"
+                      display-name="Vs0 speed"
+                      :is-editing="editingField === 'vs0_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vs0_speed }}kt
+                      <span class="spec-note">Full flaps, landing gear down</span>
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row">
+                  <div class="spec-label">Maneuvering (Va)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="maneuvering_speed"
+                      :current-value="`${aircraft.maneuvering_speed} knots`"
+                      display-name="maneuvering speed"
+                      :is-editing="editingField === 'maneuvering_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.maneuvering_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vno_speed">
+                  <div class="spec-label">Normal Ops (Vno)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vno_speed"
+                      :current-value="`${aircraft.vno_speed} knots`"
+                      display-name="Vno speed"
+                      :is-editing="editingField === 'vno_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vno_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vne_speed">
+                  <div class="spec-label">Never Exceed (Vne)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vne_speed"
+                      :current-value="`${aircraft.vne_speed} knots`"
+                      display-name="Vne speed"
+                      :is-editing="editingField === 'vne_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      <span class="text-danger">{{ aircraft.vne_speed }}kt</span>
+                      <span class="spec-note text-danger">Never exceed this speed</span>
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row">
+                  <div class="spec-label">Top Speed</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="top_speed"
+                      :current-value="`${aircraft.top_speed} knots`"
+                      display-name="top speed"
+                      :is-editing="editingField === 'top_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.top_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="spec-item">
-              <label>Maximum Takeoff Weight</label>
-              <EditableField
-                field-name="max_takeoff_weight"
-                :current-value="aircraft.max_takeoff_weight ? `${aircraft.max_takeoff_weight} lbs` : 'Not specified'"
-                display-name="takeoff weight"
-                :is-editing="editingField === 'max_takeoff_weight'"
-                :edit-form="editForm"
-                @start-edit="startEdit"
-                @save-edit="saveEdit"
-                @cancel-edit="cancelEdit"
-              >
-                {{ aircraft.max_takeoff_weight ? `${aircraft.max_takeoff_weight.toLocaleString()} lbs` : 'Not specified' }}
-              </EditableField>
+
+            <!-- Top Right: Performance Speeds -->
+            <div class="info-section">
+              <h4>Performance Speeds</h4>
+              <div class="spec-table">
+                <div class="spec-row" v-if="aircraft.vx_speed">
+                  <div class="spec-label">Best Angle Climb (Vx)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vx_speed"
+                      :current-value="`${aircraft.vx_speed} knots`"
+                      display-name="Vx speed"
+                      :is-editing="editingField === 'vx_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vx_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vy_speed">
+                  <div class="spec-label">Best Rate Climb (Vy)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vy_speed"
+                      :current-value="`${aircraft.vy_speed} knots`"
+                      display-name="Vy speed"
+                      :is-editing="editingField === 'vy_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vy_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vg_speed">
+                  <div class="spec-label">Best Glide (Vg)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vg_speed"
+                      :current-value="`${aircraft.vg_speed} knots`"
+                      display-name="Vg speed"
+                      :is-editing="editingField === 'vg_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vg_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.vfe_speed">
+                  <div class="spec-label">Max Flaps Extended (Vfe)</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="vfe_speed"
+                      :current-value="`${aircraft.vfe_speed} knots`"
+                      display-name="Vfe speed"
+                      :is-editing="editingField === 'vfe_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.vfe_speed }}kt
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row" v-if="aircraft.cruise_speed">
+                  <div class="spec-label">Cruise Speed</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="cruise_speed"
+                      :current-value="`${aircraft.cruise_speed} knots`"
+                      display-name="cruise speed"
+                      :is-editing="editingField === 'cruise_speed'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.cruise_speed }}kt
+                      <span class="spec-note">75% power at optimal altitude</span>
+                    </EditableField>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="spec-item">
-              <label>Seating Capacity</label>
-              <EditableField
-                field-name="seating_capacity"
-                :current-value="`${aircraft.seating_capacity} seats`"
-                display-name="seating capacity"
-                :is-editing="editingField === 'seating_capacity'"
-                :edit-form="editForm"
-                @start-edit="startEdit"
-                @save-edit="saveEdit"
-                @cancel-edit="cancelEdit"
-              >
-                {{ aircraft.seating_capacity }} seats
-                <span v-if="aircraft.sport_pilot_eligible && aircraft.seating_capacity > 2" class="spec-note">
-                  (Sport pilots limited to 1 passenger)
-                </span>
-              </EditableField>
+
+            <!-- Bottom Left: Aircraft Limits -->
+            <div class="info-section">
+              <h4>Aircraft Limits</h4>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <div class="spec-label">Maximum Takeoff Weight</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="max_takeoff_weight"
+                      :current-value="aircraft.max_takeoff_weight ? `${aircraft.max_takeoff_weight} lbs` : 'Not specified'"
+                      display-name="takeoff weight"
+                      :is-editing="editingField === 'max_takeoff_weight'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.max_takeoff_weight ? `${aircraft.max_takeoff_weight.toLocaleString()} lbs` : 'Not specified' }}
+                    </EditableField>
+                  </div>
+                </div>
+                <div class="spec-row">
+                  <div class="spec-label">Seating Capacity</div>
+                  <div class="spec-value">
+                    <EditableField
+                      field-name="seating_capacity"
+                      :current-value="`${aircraft.seating_capacity} seats`"
+                      display-name="seating capacity"
+                      :is-editing="editingField === 'seating_capacity'"
+                      :edit-form="editForm"
+                      @start-edit="startEdit"
+                      @save-edit="saveEdit"
+                      @cancel-edit="cancelEdit"
+                      class="inline-edit"
+                    >
+                      {{ aircraft.seating_capacity }} seats
+                      <span v-if="aircraft.sport_pilot_eligible && aircraft.seating_capacity > 2" class="spec-note">
+                        (Sport pilots limited to 1 passenger)
+                      </span>
+                    </EditableField>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Right: Certification Information -->
+            <div class="info-section">
+              <h4>Certification</h4>
+              <div class="spec-table">
+                <div class="spec-row">
+                  <div class="spec-label">Certification Date</div>
+                  <div class="spec-value">
+                    {{ aircraft.certification_date ? formatDate(aircraft.certification_date) : 'Not specified' }}
+                    <span v-if="aircraft.certification_date" class="spec-note">
+                      {{ getCertificationNote(aircraft.certification_date) }}
+                    </span>
+                  </div>
+                </div>
+                <div class="spec-row">
+                  <div class="spec-label">MOSAIC Compliant</div>
+                  <div class="spec-value">
+                    {{ aircraft.is_mosaic_compliant ? 'Yes' : 'No' }}
+                  </div>
+                </div>
+                <div class="spec-row">
+                  <div class="spec-label">Sport Pilot Eligible</div>
+                  <div class="spec-value">
+                    {{ aircraft.sport_pilot_eligible ? 'Yes' : 'No' }}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Certification Information -->
+        <!-- Airspeed Gauge -->
+        <!-- TODO: Re-enable airspeed gauge later -->
+        <!--
         <div class="card spec-card">
-          <h3>Certification Information</h3>
-          <div class="spec-grid">
-            <div class="spec-item">
-              <label>Certification Date</label>
-              <div class="spec-value">
-                {{ aircraft.certification_date ? formatDate(aircraft.certification_date) : 'Not specified' }}
-                <span v-if="aircraft.certification_date" class="spec-note">
-                  {{ getCertificationNote(aircraft.certification_date) }}
-                </span>
-              </div>
-            </div>
-            <div class="spec-item">
-              <label>MOSAIC Compliant</label>
-              <div class="spec-value">
-                {{ aircraft.is_mosaic_compliant ? 'Yes' : 'No' }}
-              </div>
-            </div>
-            <div class="spec-item">
-              <label>Sport Pilot Eligible</label>
-              <div class="spec-value">
-                {{ aircraft.sport_pilot_eligible ? 'Yes' : 'No' }}
-              </div>
-            </div>
-          </div>
+          <AirspeedGauge
+            :stall-speed="aircraft.clean_stall_speed"
+            :cruise-speed="aircraft.cruise_speed"
+            :maneuvering-speed="aircraft.maneuvering_speed"
+            :max-speed="aircraft.top_speed"
+          />
+        </div>
+        -->
+
+        <!-- AMP Ad -->
+        <div class="card spec-card full-width ad-container">
+          <amp-ad width="100vw" height="320"
+               type="adsense"
+               data-ad-client="ca-pub-6080657940765418"
+               data-ad-slot="3049559222"
+               data-auto-format="rspv"
+               data-full-width="">
+            <div overflow=""></div>
+          </amp-ad>
         </div>
 
         <!-- Engine Configurations -->
@@ -378,6 +605,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { mdiPencil } from '@mdi/js'
 import MdiIcon from '../components/MdiIcon.vue'
 import EditableField from '../components/EditableField.vue'
+import AirspeedGauge from '../components/AirspeedGauge.vue'
 import { apiRequest } from '../utils/api.js'
 
 const route = useRoute()
@@ -469,6 +697,14 @@ const getFieldDisplayName = (fieldName) => {
     'clean_stall_speed': 'Clean Stall Speed',
     'top_speed': 'Top Speed',
     'maneuvering_speed': 'Maneuvering Speed',
+    'cruise_speed': 'Cruise Speed',
+    'vx_speed': 'Best Angle of Climb Speed (Vx)',
+    'vy_speed': 'Best Rate of Climb Speed (Vy)',
+    'vs0_speed': 'Stall Speed Landing Configuration (Vs0)',
+    'vg_speed': 'Best Glide Speed (Vg)',
+    'vfe_speed': 'Maximum Flap Extended Speed (Vfe)',
+    'vno_speed': 'Maximum Structural Cruising Speed (Vno)',
+    'vne_speed': 'Never Exceed Speed (Vne)',
     'max_takeoff_weight': 'Maximum Takeoff Weight',
     'seating_capacity': 'Seating Capacity',
     'certification_date': 'Certification Date',
@@ -566,6 +802,28 @@ const getStallSpeedNote = (stallSpeed) => {
     return 'Private pilot required'
   } else {
     return 'Exceeds MOSAIC limits'
+  }
+}
+
+const getMosaicEligibilityClass = (aircraft) => {
+  const stallSpeed = parseFloat(aircraft.clean_stall_speed)
+  if (stallSpeed <= 59) {
+    return 'sport-pilot-eligible'
+  } else if (stallSpeed <= 61) {
+    return 'private-pilot-required'
+  } else {
+    return 'not-mosaic-eligible'
+  }
+}
+
+const getMosaicEligibilityText = (aircraft) => {
+  const stallSpeed = parseFloat(aircraft.clean_stall_speed)
+  if (stallSpeed <= 59) {
+    return 'Sport Pilot Eligible'
+  } else if (stallSpeed <= 61) {
+    return 'MOSAIC LSA (Private Pilot Required)'
+  } else {
+    return 'Not MOSAIC Eligible'
   }
 }
 
@@ -1376,6 +1634,179 @@ onMounted(() => {
   
   .btn-save, .btn-cancel {
     width: 100%;
+    padding: 0.75rem;
+  }
+}
+
+/* Performance Specifications - New Layout */
+.mosaic-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eligibility-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.eligibility-badge.sport-pilot-eligible {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.eligibility-badge.private-pilot-required {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.eligibility-badge.not-mosaic-eligible {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.key-specs {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.key-spec {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.aircraft-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.info-section {
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-light);
+  padding: 1rem;
+}
+
+.info-section h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.spec-table {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.spec-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-light);
+}
+
+.spec-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.spec-value {
+  text-align: right;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spec-value .inline-edit {
+  display: inline-block;
+}
+
+.spec-value .spec-note {
+  display: block;
+  font-weight: 400;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .mosaic-summary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .key-specs {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .aircraft-info-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 1.5rem;
+  }
+  
+  .spec-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    text-align: left;
+  }
+  
+  .spec-value {
+    text-align: left;
+  }
+  
+  .spec-value .spec-note {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .key-specs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Ad Container Styles */
+.ad-container {
+  text-align: center;
+  margin: 2rem 0;
+  border: 1px solid var(--border-light);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+}
+
+.ad-container amp-ad {
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .ad-container {
+    margin: 1.5rem 0;
     padding: 0.75rem;
   }
 }

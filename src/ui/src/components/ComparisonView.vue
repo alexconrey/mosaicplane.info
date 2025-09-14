@@ -117,6 +117,56 @@
                   {{ aircraft.maneuvering_speed }} knots
                 </div>
               </div>
+              <div class="spec-item" v-if="aircraft.cruise_speed">
+                <div class="spec-label">Cruise Speed</div>
+                <div class="spec-value">
+                  {{ aircraft.cruise_speed }} knots
+                  <div class="spec-note">75% power</div>
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vx_speed">
+                <div class="spec-label">Best Angle Climb (Vx)</div>
+                <div class="spec-value">
+                  {{ aircraft.vx_speed }} knots
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vy_speed">
+                <div class="spec-label">Best Rate Climb (Vy)</div>
+                <div class="spec-value">
+                  {{ aircraft.vy_speed }} knots
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vs0_speed">
+                <div class="spec-label">Stall Speed (Vs0)</div>
+                <div class="spec-value">
+                  {{ aircraft.vs0_speed }} knots
+                  <div class="spec-note">Landing config</div>
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vg_speed">
+                <div class="spec-label">Best Glide (Vg)</div>
+                <div class="spec-value">
+                  {{ aircraft.vg_speed }} knots
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vfe_speed">
+                <div class="spec-label">Max Flap Extended (Vfe)</div>
+                <div class="spec-value">
+                  {{ aircraft.vfe_speed }} knots
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vno_speed">
+                <div class="spec-label">Max Structural Cruise (Vno)</div>
+                <div class="spec-value">
+                  {{ aircraft.vno_speed }} knots
+                </div>
+              </div>
+              <div class="spec-item" v-if="aircraft.vne_speed">
+                <div class="spec-label">Never Exceed (Vne)</div>
+                <div class="spec-value text-danger">
+                  {{ aircraft.vne_speed }} knots
+                </div>
+              </div>
 
               <div class="spec-item">
                 <div class="spec-label">Max Takeoff Weight</div>
