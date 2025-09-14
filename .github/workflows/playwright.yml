@@ -1,8 +1,11 @@
-name: Playwright Tests
+name: Playwright E2E Tests
 on:
-  pull_request:
-    types:
-      - opened
+  push:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Allow manual trigger
 jobs:
   test:
     timeout-minutes: 60
@@ -12,21 +15,18 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+        cache: 'npm'
+        cache-dependency-path: 'src/ui/package-lock.json'
     - name: Install dependencies
       run: |
         cd src/ui
         npm ci
-    - name: Install Playwright Browsers
-      run: |
-        cd src/ui
         npx playwright install --with-deps
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Start services with Docker Compose
       run: |
         docker compose up -d
-        # Wait for services to be ready
-        sleep 30
     - name: Wait for services to be healthy
       run: |
         # Wait up to 2 minutes for services to be healthy
@@ -49,7 +49,7 @@ jobs:
     - name: Run Playwright tests
       run: |
         cd src/ui
-        npx playwright test
+        DOCKER_E2E=true npx playwright test
     - uses: actions/upload-artifact@v4
       if: always()
       with:
