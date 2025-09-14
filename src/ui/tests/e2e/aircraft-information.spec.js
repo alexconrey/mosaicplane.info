@@ -227,20 +227,91 @@ test.describe('Aircraft Information Section', () => {
   test('accessibility and keyboard navigation', async ({ page }) => {
     // Test keyboard navigation through the section
     await page.keyboard.press('Tab')
-    
+
     // Verify section is accessible
     const aircraftInfoSection = page.locator('.card.spec-card.full-width').filter({ hasText: 'Aircraft Information' })
     await expect(aircraftInfoSection).toBeVisible()
-    
+
     // Check for proper heading structure
     const headings = page.locator('h3, h4')
     const headingCount = await headings.count()
     expect(headingCount).toBeGreaterThan(0)
-    
+
     // Take screenshot for accessibility verification
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'playwright-report/accessibility-verification.png',
       fullPage: true
     })
+  })
+
+  test('engine configurations display correctly based on engine type', async ({ page }) => {
+    // Check if engine configurations section exists
+    const engineSection = page.locator('.card.spec-card.full-width').filter({ hasText: 'Available Engine Configurations' })
+
+    // If engines exist, test their display
+    if (await engineSection.count() > 0) {
+      await expect(engineSection).toBeVisible()
+
+      const engines = page.locator('.engine-card')
+      const engineCount = await engines.count()
+
+      if (engineCount > 0) {
+        // Test each engine configuration
+        for (let i = 0; i < engineCount; i++) {
+          const engine = engines.nth(i)
+
+          // Get engine type by checking the specification rows
+          const engineSpecs = engine.locator('.engine-specs')
+          const engineTypeRow = engineSpecs.locator('.engine-spec-row').filter({ hasText: 'Engine Type' })
+
+          if (await engineTypeRow.count() > 0) {
+            const engineTypeText = await engineTypeRow.locator('.engine-spec:last-child span').textContent()
+
+            // Test jet engines show thrust output
+            if (engineTypeText && (engineTypeText.includes('Turbojet') || engineTypeText.includes('Turbofan'))) {
+              // Verify thrust output is shown
+              const thrustOutput = engine.locator('text=Thrust Output')
+              await expect(thrustOutput).toBeVisible()
+
+              // Verify thrust value has blue highlighting
+              const thrustValue = engine.locator('.spec-highlight').filter({ hasText: 'lbf' })
+              if (await thrustValue.count() > 0) {
+                await expect(thrustValue).toBeVisible()
+              }
+
+              // Verify thrust rating section is NOT shown for jets
+              const thrustRating = engine.locator('text=Thrust Rating')
+              await expect(thrustRating).not.toBeVisible()
+            }
+
+            // Test piston/electric engines show displacement and horsepower
+            if (engineTypeText && (engineTypeText.includes('Piston') || engineTypeText.includes('Electric'))) {
+              // Verify power output is shown
+              const powerOutput = engine.locator('text=Power Output')
+              await expect(powerOutput).toBeVisible()
+
+              // Verify horsepower value has blue highlighting
+              const horsepowerValue = engine.locator('.spec-highlight').filter({ hasText: 'hp' })
+              if (await horsepowerValue.count() > 0) {
+                await expect(horsepowerValue).toBeVisible()
+              }
+
+              // Verify displacement is shown for piston engines
+              if (engineTypeText.includes('Piston')) {
+                const displacement = engine.locator('text=Displacement')
+                if (await displacement.count() > 0) {
+                  await expect(displacement).toBeVisible()
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Take screenshot of engine configurations
+      await engineSection.screenshot({
+        path: 'playwright-report/engine-configurations.png'
+      })
+    }
   })
 })

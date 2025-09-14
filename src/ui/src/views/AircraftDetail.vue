@@ -459,12 +459,12 @@
               <div class="engine-specs">
                 <div class="engine-spec-row">
                   <div class="engine-spec">
-                    <label>Power Output</label>
-                    <span class="spec-highlight">{{ engine.horsepower }} hp</span>
+                    <label>{{ getPowerOutputLabel(engine) }}</label>
+                    <span class="spec-highlight">{{ getPowerOutputValue(engine) }}</span>
                   </div>
-                  <div class="engine-spec">
-                    <label>Displacement</label>
-                    <span>{{ engine.displacement_liters }}L</span>
+                  <div v-if="engine.engine_type !== 'JET'" class="engine-spec">
+                    <label>{{ getEngineCapacityLabel(engine) }}</label>
+                    <span>{{ getEngineCapacityValue(engine) }}</span>
                   </div>
                 </div>
                 
@@ -475,7 +475,7 @@
                   </div>
                   <div class="engine-spec">
                     <label>Fuel System</label>
-                    <span>{{ engine.is_fuel_injected ? 'Fuel Injected' : 'Carbureted' }}</span>
+                    <span>{{ getFuelSystemDescription(engine) }}</span>
                   </div>
                 </div>
                 
@@ -492,14 +492,53 @@
                 <div class="impact-section">
                   <h5>Performance Impact</h5>
                   <ul class="impact-list">
-                    <li v-if="engine.horsepower > 180">Higher power may affect handling characteristics</li>
-                    <li v-if="engine.fuel_type === 'MOGAS'">Can use automotive gasoline (typically lower cost)</li>
-                    <li v-if="engine.is_fuel_injected">Fuel injection provides better fuel distribution</li>
-                    <li v-if="!engine.is_fuel_injected">Carbureted engine - simpler maintenance</li>
-                    <li v-if="engine.displacement_liters > 5">Larger displacement - more power, higher fuel consumption</li>
+                    <template v-if="engine.engine_type === 'PISTON'">
+                      <li v-if="engine.horsepower > 180">Higher power may affect handling characteristics and require more pilot experience</li>
+                      <li v-if="engine.fuel_type === 'MOGAS'">Can use automotive gasoline (typically 20-30% lower cost than Avgas)</li>
+                      <li v-if="engine.is_fuel_injected">Fuel injection provides consistent fuel/air mixture, better high-altitude performance</li>
+                      <li v-if="!engine.is_fuel_injected">Carbureted engine - simpler maintenance, may require carburetor heat in flight</li>
+                      <li v-if="engine.displacement_liters > 5">Larger displacement - more torque at lower RPM, typically higher fuel consumption</li>
+                      <li>Piston engines provide reliable, well-understood technology with extensive maintenance network</li>
+                    </template>
+
+                    <template v-else-if="engine.engine_type === 'TURBOPROP'">
+                      <li>Turboprop engines offer exceptional power-to-weight ratio and high-altitude performance</li>
+                      <li>Lower vibration and smoother operation compared to piston engines</li>
+                      <li>Uses Jet A-1 aviation turbine fuel, available at more airports than Avgas</li>
+                      <li>Faster climb rates and better performance above 10,000 feet</li>
+                      <li v-if="engine.horsepower > 300">High power output enables excellent short-field performance</li>
+                      <li>Requires turbine engine maintenance expertise - higher operating costs</li>
+                      <li>Excellent reliability but complex systems require instrument-rated pilots</li>
+                    </template>
+
+                    <template v-else-if="engine.engine_type === 'JET'">
+                      <li>Pure jet engines provide exceptional speed and high-altitude capability</li>
+                      <li>Minimal vibration and very smooth operation throughout flight envelope</li>
+                      <li>Uses Jet A-1 aviation turbine fuel - widely available at commercial airports</li>
+                      <li>Superior performance above 20,000 feet - cruise speeds often 200+ knots</li>
+                      <li>Instant power response with no propeller efficiency limitations</li>
+                      <li>Requires type rating and extensive jet training - significant pilot qualification investment</li>
+                      <li>High fuel consumption at low altitudes - most efficient in flight levels</li>
+                      <li>Complex systems require professional maintenance - highest operating costs</li>
+                    </template>
+
+                    <template v-else-if="engine.engine_type === 'ELECTRIC'">
+                      <li>Electric motors provide instant maximum torque and nearly silent operation</li>
+                      <li>Zero emissions during flight - environmentally sustainable option</li>
+                      <li>Extremely low vibration - enhanced passenger comfort</li>
+                      <li>Minimal maintenance requirements - no oil changes, spark plugs, or overhauls</li>
+                      <li>Lower operating costs per flight hour (when charging infrastructure available)</li>
+                      <li>Limited flight duration - typically 1-3 hours depending on battery capacity</li>
+                      <li>Battery charging infrastructure still developing at most airports</li>
+                      <li>Performance decreases with battery discharge throughout flight</li>
+                    </template>
+
+                    <template v-else>
+                      <li>Engine specifications and performance characteristics available in technical documentation</li>
+                    </template>
                   </ul>
                 </div>
-                
+
                 <div class="impact-section">
                   <h5>MOSAIC Considerations</h5>
                   <p class="impact-explanation">{{ getEngineEligibilityImpact(engine).explanation }}</p>
@@ -785,7 +824,8 @@ const formatFuelType = (fuelType) => {
   const types = {
     'AVGAS': 'Avgas (100LL/91UL)',
     'MOGAS': 'Automotive gasoline',
-    'DIESEL': 'Jet A / Diesel',
+    'JET_A': 'Jet A (aviation turbine fuel)',
+    'DIESEL': 'Diesel fuel',
     'ELECTRIC': 'Electric'
   }
   return types[fuelType] || fuelType
@@ -795,9 +835,79 @@ const formatEngineType = (engineType) => {
   const types = {
     'PISTON': 'Piston engine',
     'TURBOPROP': 'Turboprop',
+    'JET': 'Turbojet/Turbofan',
     'ELECTRIC': 'Electric motor'
   }
   return types[engineType] || engineType
+}
+
+const getFuelSystemDescription = (engine) => {
+  switch (engine.engine_type) {
+    case 'PISTON':
+      return engine.is_fuel_injected ? 'Fuel Injected' : 'Carbureted'
+    case 'TURBOPROP':
+    case 'JET':
+      return 'Fuel Control Unit (FCU)'
+    case 'ELECTRIC':
+      return 'Battery Management System'
+    default:
+      return engine.is_fuel_injected ? 'Fuel Injected' : 'Carbureted'
+  }
+}
+
+const getEngineCapacityLabel = (engine) => {
+  switch (engine.engine_type) {
+    case 'PISTON':
+      return 'Displacement'
+    case 'TURBOPROP':
+    case 'JET':
+      return 'Thrust Rating'
+    case 'ELECTRIC':
+      return 'Motor Rating'
+    default:
+      return 'Capacity'
+  }
+}
+
+const getEngineCapacityValue = (engine) => {
+  switch (engine.engine_type) {
+    case 'PISTON':
+      return engine.displacement_liters ? `${engine.displacement_liters}L` : 'Not specified'
+    case 'TURBOPROP':
+    case 'JET':
+      return engine.thrust_pounds ? `${engine.thrust_pounds.toLocaleString()} lbf` : 'Not specified'
+    case 'ELECTRIC':
+      return engine.displacement_liters ? `${engine.displacement_liters}L equivalent` : 'Varies by application'
+    default:
+      return engine.displacement_liters ? `${engine.displacement_liters}L` : 'Not specified'
+  }
+}
+
+const getPowerOutputLabel = (engine) => {
+  switch (engine.engine_type) {
+    case 'PISTON':
+      return 'Power Output'
+    case 'TURBOPROP':
+    case 'JET':
+      return 'Thrust Output'
+    case 'ELECTRIC':
+      return 'Power Output'
+    default:
+      return 'Power Output'
+  }
+}
+
+const getPowerOutputValue = (engine) => {
+  switch (engine.engine_type) {
+    case 'PISTON':
+    case 'ELECTRIC':
+      return engine.horsepower ? `${engine.horsepower} hp` : 'Not specified'
+    case 'TURBOPROP':
+    case 'JET':
+      return engine.thrust_pounds ? `${engine.thrust_pounds.toLocaleString()} lbf` : 'Not specified'
+    default:
+      return engine.horsepower ? `${engine.horsepower} hp` : 'Not specified'
+  }
 }
 
 const getStallSpeedNote = (stallSpeed) => {
@@ -847,34 +957,49 @@ const getCertificationNote = (certDate) => {
 const getEngineEligibilityImpact = (engine) => {
   // Engine eligibility is primarily based on the aircraft's stall speed, not the engine itself
   // However, we can provide context about how different engines might affect performance
-  
+
   const baseAircraftEligible = aircraft.value?.sport_pilot_eligible
   const baseAircraftMosaic = aircraft.value?.is_mosaic_compliant
-  
-  // Determine if this engine configuration might affect eligibility
-  const isHighPowerEngine = engine.horsepower > 200
-  const isComplexEngine = engine.is_fuel_injected && engine.horsepower > 180
-  
+
+  // Generate engine-type specific explanations
+  const getEngineTypeContext = (engineType, horsepower) => {
+    switch (engineType) {
+      case 'PISTON':
+        return `This ${horsepower}hp piston engine offers proven reliability and widespread maintenance support. Piston engines are well-suited for training and recreational flying.`
+      case 'TURBOPROP':
+        return `This ${horsepower}hp turboprop provides exceptional performance and efficiency. Turboprops offer jet-like performance with propeller efficiency, ideal for cross-country travel.`
+      case 'JET':
+        return `This jet engine delivers superior high-speed, high-altitude performance typically exceeding 200 knots cruise speed. Jets require type rating certification and instrument flight capabilities.`
+      case 'ELECTRIC':
+        return `This electric motor provides environmentally sustainable flight with minimal noise and vibration. Electric aircraft are ideal for training and short local flights.`
+      default:
+        return `This ${horsepower}hp engine configuration provides specific performance characteristics.`
+    }
+  }
+
+  const engineContext = getEngineTypeContext(engine.engine_type, engine.horsepower)
+
   if (baseAircraftEligible) {
     return {
       eligible: true,
       mosaic: true,
       reason: `Compatible with sport pilot eligible ${aircraft.value.manufacturer_name} ${aircraft.value.model}`,
-      explanation: `This engine configuration maintains the aircraft's sport pilot eligibility. The ${engine.horsepower}hp ${engine.manufacturer} ${engine.model} provides good performance while staying within MOSAIC limits.`
+      explanation: `This engine configuration maintains the aircraft's sport pilot eligibility. ${engineContext} The airframe's stall speed keeps it within MOSAIC sport pilot limits.`
     }
   } else if (baseAircraftMosaic) {
     return {
       eligible: false,
       mosaic: true,
       reason: `MOSAIC compliant but requires private pilot certificate`,
-      explanation: `While this engine works with MOSAIC LSA certification, the aircraft's stall speed requires a private pilot certificate. The ${engine.horsepower}hp configuration provides excellent performance for private pilots.`
+      explanation: `While this engine works with MOSAIC LSA certification, the aircraft's stall speed (${aircraft.value.clean_stall_speed}kt) requires a private pilot certificate. ${engineContext} Perfect for private pilots seeking ${engine.engine_type.toLowerCase()} performance.`
     }
   } else {
+    const pilotRequirement = engine.engine_type === 'JET' ? 'ATP or type rating' : 'private pilot certificate'
     return {
       eligible: false,
       mosaic: false,
       reason: `Aircraft exceeds MOSAIC limits regardless of engine`,
-      explanation: `This ${engine.horsepower}hp engine configuration cannot make the aircraft MOSAIC compliant due to the airframe's inherent stall speed characteristics. Requires private pilot certificate.`
+      explanation: `This aircraft's stall speed (${aircraft.value.clean_stall_speed}kt) exceeds MOSAIC LSA limits, requiring ${pilotRequirement}. ${engineContext} ${engine.engine_type === 'JET' ? 'Jets typically operate under Part 25 or Part 23 certification.' : 'Requires traditional general aviation certification.'}`
     }
   }
 }

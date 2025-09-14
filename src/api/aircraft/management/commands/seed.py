@@ -92,7 +92,9 @@ class Command(BaseCommand):
             defaults={
                 'horsepower': min(engine_data['horsepower'], 400),  # Cap at model's max validator
                 'fuel_type': engine_data.get('fuel_type', 'AVGAS'),
-                'engine_type': engine_data.get('engine_type', 'PISTON')
+                'engine_type': engine_data.get('engine_type', 'PISTON'),
+                'thrust_pounds': engine_data.get('thrust_pounds'),
+                'displacement_liters': engine_data.get('displacement_liters')
             }
         )
         
@@ -1397,7 +1399,7 @@ class Command(BaseCommand):
                 'variable_pitch_prop': False,
                 'certification_date': date(1998, 1, 1),
                 'verification_source': 'Boeing specifications',
-                'engine_specs': {'manufacturer': 'CFM International', 'model': 'CFM56-7B', 'horsepower': 400, 'fuel_type': 'DIESEL', 'engine_type': 'PISTON'}
+                'engine_specs': {'manufacturer': 'CFM International', 'model': 'CFM56-7B27', 'thrust_pounds': 27300, 'fuel_type': 'JET_A', 'engine_type': 'JET'}
             },
             {
                 'manufacturer': manufacturers['airbus'],
@@ -1512,7 +1514,7 @@ class Command(BaseCommand):
                 'variable_pitch_prop': True,
                 'certification_date': date(1954, 1, 1),
                 'verification_source': 'US Air Force specifications',
-                'engine_specs': {'manufacturer': 'Rolls-Royce', 'model': 'T56-A-15', 'horsepower': 400, 'fuel_type': 'DIESEL', 'engine_type': 'TURBOPROP'}
+                'engine_specs': {'manufacturer': 'Rolls-Royce', 'model': 'T56-A-15', 'thrust_pounds': 4591, 'fuel_type': 'JET_A', 'engine_type': 'TURBOPROP'}
             },
             {
                 'manufacturer': manufacturers['boeing'],

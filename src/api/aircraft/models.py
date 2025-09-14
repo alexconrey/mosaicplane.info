@@ -27,31 +27,44 @@ class Engine(models.Model):
     FUEL_TYPE_CHOICES = [
         ('AVGAS', 'Avgas (100LL/91UL)'),
         ('MOGAS', 'Automotive gasoline (91+ octane)'),
-        ('DIESEL', 'Jet A / Diesel'),
+        ('JET_A', 'Jet A (aviation turbine fuel)'),
+        ('DIESEL', 'Diesel fuel'),
         ('ELECTRIC', 'Electric'),
     ]
     
     ENGINE_TYPE_CHOICES = [
         ('PISTON', 'Piston engine'),
         ('TURBOPROP', 'Turboprop'),
+        ('JET', 'Turbojet/Turbofan'),
         ('ELECTRIC', 'Electric motor'),
     ]
     
     manufacturer = models.CharField(max_length=100, help_text="Engine manufacturer (e.g., Lycoming, Continental, Rotax)")
     model = models.CharField(max_length=100, help_text="Engine model designation (e.g., O-320-E2A, 912ULS)")
     horsepower = models.IntegerField(
+        null=True,
+        blank=True,
         validators=[
             MinValueValidator(50),
             MaxValueValidator(400)  # Reasonable range for LSA/GA engines
         ],
-        help_text="Rated horsepower"
+        help_text="Rated horsepower (for piston and electric engines)"
     )
     displacement_liters = models.DecimalField(
         max_digits=4,
         decimal_places=2,
         null=True,
         blank=True,
-        help_text="Engine displacement in liters"
+        help_text="Engine displacement in liters (for piston engines)"
+    )
+    thrust_pounds = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(100),
+            MaxValueValidator(100000)  # Reasonable range for aircraft engines
+        ],
+        help_text="Static thrust in pounds (for jet/turboprop engines)"
     )
     fuel_type = models.CharField(
         max_length=10,

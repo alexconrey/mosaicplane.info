@@ -31,6 +31,7 @@ class EngineSerializer(serializers.ModelSerializer):
             'model',
             'horsepower',
             'displacement_liters',
+            'thrust_pounds',
             'fuel_type',
             'engine_type',
             'is_fuel_injected',
