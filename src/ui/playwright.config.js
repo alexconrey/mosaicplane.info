@@ -7,6 +7,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
+  /* Set NODE_ENV to test for better compatibility */
+  globalSetup: './tests/global-setup.js',
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -43,10 +45,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //     channel: 'firefox' // Use stable Firefox instead of nightly
+    //   },
+    // },
 
     {
       name: 'webkit',

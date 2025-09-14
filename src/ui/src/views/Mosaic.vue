@@ -289,7 +289,7 @@ onMounted(async () => {
 
 .aircraft-item p {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 

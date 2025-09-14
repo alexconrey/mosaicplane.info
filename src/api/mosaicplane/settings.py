@@ -162,6 +162,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
+    # Exclude internal-only feature flags from public API documentation
+    'POSTPROCESSING_HOOKS': ['mosaicplane.schema_processors.exclude_feature_flags'],
 }
 
 # CORS settings

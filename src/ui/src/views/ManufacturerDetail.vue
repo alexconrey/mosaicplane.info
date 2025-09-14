@@ -261,7 +261,7 @@ onMounted(() => {
 }
 
 .logo-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   margin: 0;
 }
 
@@ -314,7 +314,7 @@ onMounted(() => {
 .badge {
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -492,7 +492,7 @@ onMounted(() => {
   }
   
   .logo-subtitle {
-    font-size: 0.7rem;
+    font-size: 0.875rem;
   }
 }
 </style>

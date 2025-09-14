@@ -33,9 +33,9 @@ export default defineConfig({
   define: {
     // Replace API base URL based on environment
     __API_BASE_URL__: JSON.stringify(
-      process.env.NODE_ENV === 'production' 
-        ? 'https://api.mosaicplane.info'
-        : '/api'
+      process.env.NODE_ENV === 'production'
+        ? 'https://api.mosaicplane.info/v1'
+        : '/api/v1'
     )
   }
 })

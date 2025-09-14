@@ -983,7 +983,7 @@ onMounted(() => {
 
 .spec-note {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
 }
@@ -1038,7 +1038,7 @@ onMounted(() => {
 }
 
 .engine-badge {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   padding: 0.375rem 0.75rem;
   white-space: nowrap;
 }
@@ -1065,7 +1065,7 @@ onMounted(() => {
 }
 
 .engine-spec label {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -1397,12 +1397,12 @@ onMounted(() => {
   }
   
   .edit-icon {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     padding: 0.125rem;
   }
   
   .correction-button {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     padding: 0.5rem 0.75rem;
   }
 }
@@ -1752,7 +1752,7 @@ onMounted(() => {
 .spec-value .spec-note {
   display: block;
   font-weight: 400;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   margin-top: 0.25rem;
   color: var(--text-secondary);
 }

@@ -23,8 +23,8 @@
               <span aria-hidden="true">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
               <span class="desktop-only">{{ theme === 'light' ? 'Dark' : 'Light' }}</span>
             </button>
-            <div class="nav-dropdown" @click="toggleNavDropdown" @blur="closeNavDropdown" tabindex="0">
-              <button 
+            <nav class="nav-dropdown" @click="toggleNavDropdown" @blur="closeNavDropdown" tabindex="0" role="navigation" aria-label="Main navigation">
+              <button
                 class="btn btn-secondary nav-toggle"
                 :aria-label="showNavDropdown ? 'Close navigation menu' : 'Open navigation menu'"
                 :aria-expanded="showNavDropdown"
@@ -33,30 +33,30 @@
                 <span aria-hidden="true">☰</span>
                 <span class="desktop-only">Menu</span>
               </button>
-              <div 
-                v-if="showNavDropdown" 
+              <div
+                v-if="showNavDropdown"
                 class="nav-dropdown-content"
                 role="menu"
                 aria-label="Navigation menu"
               >
-                <router-link 
-                  to="/manufacturers" 
+                <router-link
+                  to="/manufacturers"
                   class="nav-dropdown-item"
                   role="menuitem"
                   @click="closeNavDropdown"
                 >
                   🏭 Manufacturers
                 </router-link>
-                <router-link 
-                  to="/mosaic" 
+                <router-link
+                  to="/mosaic"
                   class="nav-dropdown-item"
                   role="menuitem"
                   @click="closeNavDropdown"
                 >
                   📋 MOSAIC Info
                 </router-link>
-                <router-link 
-                  to="/about" 
+                <router-link
+                  to="/about"
                   class="nav-dropdown-item"
                   role="menuitem"
                   @click="closeNavDropdown"
@@ -64,7 +64,7 @@
                   ℹ️ About
                 </router-link>
               </div>
-            </div>
+            </nav>
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@
             </p>
             <p class="text-secondary">
               <small>
-                API: <a href="/api/docs/" target="_blank" class="text-accent" aria-label="API Documentation (opens in new tab)">Documentation</a> |
+                API: <a href="/api/docs/" target="_blank" rel="noopener" class="text-accent" aria-label="API Documentation (opens in new tab)">Documentation</a> |
                 <router-link to="/about#legal-disclaimer" class="text-accent">Legal Disclaimer</router-link>
               </small>
             </p>
@@ -146,7 +146,7 @@ onMounted(() => {
   
   // Close dropdown when clicking outside
   document.addEventListener('click', (event) => {
-    if (!event.target.closest('.nav-dropdown')) {
+    if (!event.target.closest('nav.nav-dropdown')) {
       closeNavDropdown()
     }
   })
@@ -319,7 +319,7 @@ onMounted(() => {
 .commit-info {
   font-family: 'Courier New', Consolas, monospace;
   opacity: 0.7;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .text-accent {
@@ -424,7 +424,7 @@ onMounted(() => {
   }
 
   .banner-text {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .main {
@@ -442,7 +442,7 @@ onMounted(() => {
   }
 
   .commit-info {
-    font-size: 0.7rem;
+    font-size: 0.875rem;
   }
 }
 </style>

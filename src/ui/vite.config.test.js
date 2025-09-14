@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { cloudflare } from '@cloudflare/vite-plugin'
 
 export default defineConfig({
   plugins: [
@@ -12,9 +11,8 @@ export default defineConfig({
           cacheHandlers: true
         }
       }
-    }),
-    // Exclude Cloudflare plugin during testing for better Firefox compatibility
-    ...(process.env.NODE_ENV === 'test' ? [] : [cloudflare()])
+    })
+    // Exclude Cloudflare plugin for testing compatibility
   ],
   server: {
     port: 3000,
@@ -22,7 +20,7 @@ export default defineConfig({
     historyApiFallback: true
   },
   build: {
-    // Optimize for Cloudflare Workers static asset hosting with aggressive caching
+    // Optimize for broader browser compatibility during testing
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
@@ -62,7 +60,7 @@ export default defineConfig({
     },
     // SEO performance optimizations
     chunkSizeWarningLimit: 1000, // Warn for chunks larger than 1MB
-    target: 'es2018' // Modern browser support for better performance
+    target: 'es2020' // Better Firefox compatibility
   },
   define: {
     // Replace API base URL based on environment

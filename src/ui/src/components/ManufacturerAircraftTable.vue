@@ -349,7 +349,7 @@ const getSortAriaAttribute = (field) => {
 }
 
 .mobile-spec {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
   background: var(--bg-secondary);
   padding: 0.125rem 0.375rem;
@@ -371,7 +371,7 @@ const getSortAriaAttribute = (field) => {
 .badge {
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;

@@ -191,7 +191,7 @@ p {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   border-radius: 0.25rem;
   text-transform: uppercase;
@@ -305,7 +305,7 @@ p {
 /* Mobile breakpoints */
 @media (max-width: 768px) {
   html {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .container {
@@ -327,12 +327,12 @@ p {
   .table th,
   .table td {
     padding: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .btn {
     padding: 0.5rem 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   h1 { font-size: 2rem; }
@@ -346,7 +346,7 @@ p {
 
 @media (max-width: 480px) {
   html {
-    font-size: 13px;
+    font-size: 16px;
   }
 
   .container {

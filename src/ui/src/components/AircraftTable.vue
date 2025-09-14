@@ -15,7 +15,7 @@
     <div class="controls">
       <div class="card">
         <div class="controls-header">
-          <h3>Aircraft Database</h3>
+          <h2>Aircraft Database</h2>
           <div class="controls-stats">
             <span class="badge" :class="aircraft.length === 0 ? 'badge-error badge-pulse' : 'badge-info'">{{ aircraft.length }} Total Aircraft</span>
             <div class="eligibility-legend">
@@ -248,7 +248,7 @@
     <div v-else class="table-container">
       <table class="table" role="table" aria-label="Aircraft database with sorting and filtering">
         <caption class="sr-only">
-          Aircraft database showing {{ filteredAircraft.length }} aircraft with eligibility information. Use table headers to sort data.
+          Table showing {{ filteredAircraft.length }} aircraft with MOSAIC eligibility information. Use table headers to sort data.
         </caption>
         <thead>
           <tr>
@@ -1082,7 +1082,7 @@ onMounted(() => {
 
 /* Mobile select button styling */
 .mobile-only.btn {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
   white-space: nowrap;
 }
@@ -1111,7 +1111,7 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
@@ -1238,7 +1238,7 @@ onMounted(() => {
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: white;
   text-decoration: none;
@@ -1311,7 +1311,7 @@ onMounted(() => {
 
 .badge-filter-button {
   transition: all 0.2s ease;
-  font-size: 0.75rem !important;
+  font-size: 0.875rem !important;
   padding: 0.25rem 0.5rem !important;
   line-height: 1.25 !important;
   font-weight: 500 !important;
@@ -1401,7 +1401,7 @@ onMounted(() => {
 
 .btn-sm {
   padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   min-width: auto;
 }
 
@@ -1452,7 +1452,7 @@ tbody tr.selected {
 }
 
 .arrow {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   transition: transform 0.2s ease;
 }
 

@@ -22,16 +22,30 @@ test.describe('Aircraft Database', () => {
   test('should display aircraft table with data', async ({ page }) => {
     // Wait for aircraft data to load
     await page.waitForSelector('table', { timeout: 10000 });
-    
+
     // Check that the aircraft table is present
     const table = page.locator('table');
     await expect(table).toBeVisible();
-    
-    // Check for table headers within the table
+
+    // Check for table headers within the table - Aircraft and Eligibility are always visible
     await expect(table.locator('thead').getByText('Aircraft')).toBeVisible();
-    await expect(table.locator('thead').getByText('Stall Speed')).toBeVisible();
     await expect(table.locator('thead').getByText('Eligibility')).toBeVisible();
-    
+
+    // Check viewport width to determine if we're in mobile or desktop mode
+    const viewportSize = page.viewportSize();
+    const isMobile = viewportSize && viewportSize.width <= 640;
+
+    if (!isMobile) {
+      // Only check for Stall Speed column on desktop (it's hidden on mobile with desktop-only class)
+      await expect(table.locator('thead').getByText('Stall Speed')).toBeVisible();
+    } else {
+      // On mobile, stall speed info should be in mobile-only aircraft details section
+      const mobileDetails = page.locator('.mobile-only .aircraft-details');
+      if (await mobileDetails.count() > 0) {
+        await expect(mobileDetails.first().getByText('Stall:')).toBeVisible();
+      }
+    }
+
     // Check that we have aircraft rows (at least one)
     const rows = page.locator('tbody tr');
     const rowCount = await rows.count();

@@ -1,6 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) - Only load in production -->
+    <script>
+      // Only load Google Analytics in production environment
+      if (window.location.hostname === 'mosaicplane.info' ||
+          window.location.hostname === 'aircraftdb.info') {
+        // Load gtag script dynamically
+        var gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-7E04WERPE8';
+        document.head.appendChild(gtagScript);
+
+        // Initialize gtag
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-7E04WERPE8');
+
+        console.log('Google Analytics loaded for production');
+      } else {
+        console.log('Google Analytics disabled in development/testing environment');
+      }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-6080657940765418">
@@ -13,7 +36,7 @@
     <!-- Primary Meta Tags -->
     <title>MosaicPlane.Info - MOSAIC Aircraft Comparison & Sport Pilot Guide</title>
     <meta name="title" content="MosaicPlane.Info - MOSAIC Aircraft Comparison & Sport Pilot Guide">
-    <meta name="description" content="Comprehensive database of MOSAIC-compliant aircraft specifications. Compare 173+ aircraft, find sport pilot eligible planes, and discover which aircraft you can fly under the new FAA MOSAIC regulations effective October 2025.">
+    <meta name="description" content="Compare 173+ MOSAIC-compliant aircraft specifications. Find sport pilot eligible planes under new FAA regulations effective October 2025.">
     <meta name="keywords" content="MOSAIC aircraft, sport pilot, LSA aircraft, aircraft comparison, FAA MOSAIC regulations, sport pilot certificate, aircraft specifications, general aviation, pilot training, aircraft database">
     <meta name="author" content="MosaicPlane.Info">
     <meta name="robots" content="index, follow">

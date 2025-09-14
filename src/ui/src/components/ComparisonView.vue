@@ -399,7 +399,7 @@ const getStallSpeedClass = (stallSpeed) => {
 
 .no-image-text {
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -508,7 +508,7 @@ const getStallSpeedClass = (stallSpeed) => {
 }
 
 .spec-note {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 400;
   color: var(--text-secondary);
   margin-top: 0.25rem;
@@ -638,7 +638,7 @@ const getStallSpeedClass = (stallSpeed) => {
 
   .badge.large {
     padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 }
 </style>

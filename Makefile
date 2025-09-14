@@ -12,8 +12,8 @@ help:
 	@echo "  dev          - Start development servers (API and UI)"
 	@echo "  build        - Build production assets"
 	@echo "  test         - Run all tests"
-	@echo "  e2e          - Run E2E tests with Playwright in Docker"
-	@echo "  e2e-headed   - Run E2E tests with headed browser in Docker"
+	@echo "  e2e          - Run E2E tests with Playwright using Docker Compose stack"
+	@echo "  e2e-headed   - Run E2E tests with headed browser using Docker Compose stack"
 	@echo "  clean        - Clean build artifacts and dependencies"
 	@echo "  precommit    - Run pre-commit hooks in Docker container"
 	@echo ""
@@ -57,19 +57,57 @@ test: api-test ui-test
 
 # E2E tests with Playwright in Docker
 e2e:
+	@echo "Starting Docker Compose services for E2E testing..."
+	docker compose up -d
+	@echo "Waiting for services to be healthy..."
+	@timeout=120; \
+	while [ $$timeout -gt 0 ]; do \
+		if curl -f http://localhost:8080 >/dev/null 2>&1; then \
+			echo "✅ Application is responding on port 8080"; \
+			break; \
+		fi; \
+		echo "⏳ Waiting for application to start..."; \
+		sleep 5; \
+		timeout=$$((timeout - 5)); \
+	done; \
+	if [ $$timeout -le 0 ]; then \
+		echo "❌ Application failed to start on port 8080"; \
+		docker compose logs; \
+		docker compose down; \
+		exit 1; \
+	fi
 	@echo "Running E2E tests with Playwright in Docker container..."
-	@echo "Make sure development servers are running: make dev"
 	docker run --rm --network host \
 		-e DOCKER_E2E=true \
 		-v $(PWD)/src/ui:/work \
 		-w /work \
 		$(PLAYWRIGHT_IMAGE) \
 		bash -c "npm ci && npx playwright test"
+	@echo "Stopping Docker Compose services..."
+	docker compose down
 
 # E2E tests with headed browser (for debugging)
 e2e-headed:
+	@echo "Starting Docker Compose services for E2E testing..."
+	docker compose up -d
+	@echo "Waiting for services to be healthy..."
+	@timeout=120; \
+	while [ $$timeout -gt 0 ]; do \
+		if curl -f http://localhost:8080 >/dev/null 2>&1; then \
+			echo "✅ Application is responding on port 8080"; \
+			break; \
+		fi; \
+		echo "⏳ Waiting for application to start..."; \
+		sleep 5; \
+		timeout=$$((timeout - 5)); \
+	done; \
+	if [ $$timeout -le 0 ]; then \
+		echo "❌ Application failed to start on port 8080"; \
+		docker compose logs; \
+		docker compose down; \
+		exit 1; \
+	fi
 	@echo "Running E2E tests with headed browser in Docker container..."
-	@echo "Make sure development servers are running: make dev"
 	docker run --rm --network host \
 		-e DOCKER_E2E=true \
 		-e DISPLAY=${DISPLAY} \
@@ -78,6 +116,8 @@ e2e-headed:
 		-w /work \
 		$(PLAYWRIGHT_IMAGE) \
 		bash -c "npm ci && npx playwright test --headed"
+	@echo "Stopping Docker Compose services..."
+	docker compose down
 
 # Pre-commit hooks execution
 precommit:
