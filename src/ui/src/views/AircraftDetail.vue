@@ -410,7 +410,7 @@
         -->
 
         <!-- AMP Ad -->
-        <div class="card spec-card full-width ad-container">
+        <div v-if="adsEnabled && ampAdsEnabled" class="card spec-card full-width ad-container">
           <amp-ad width="100vw" height="320"
                type="adsense"
                data-ad-client="ca-pub-6080657940765418"
@@ -607,9 +607,15 @@ import MdiIcon from '../components/MdiIcon.vue'
 import EditableField from '../components/EditableField.vue'
 import AirspeedGauge from '../components/AirspeedGauge.vue'
 import { apiRequest } from '../utils/api.js'
+import { useFeatureFlags } from '../composables/useFeatureFlags.js'
 
 const route = useRoute()
 const router = useRouter()
+
+// Feature flags
+const { isFeatureEnabled } = useFeatureFlags()
+const adsEnabled = isFeatureEnabled('ads_enabled')
+const ampAdsEnabled = isFeatureEnabled('amp_ads_enabled')
 
 // Data state
 const aircraft = ref(null)

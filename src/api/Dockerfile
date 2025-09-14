@@ -32,6 +32,9 @@ RUN mkdir -p /app/data
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+# Make startup script executable
+RUN chmod +x /app/startup.sh
+
 # Create non-root user
 RUN adduser --disabled-password --gecos '' appuser
 RUN chown -R appuser:appuser /app
@@ -44,5 +47,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-8000}/api/aircraft/', timeout=10)"
 
-# Run the application using gunicorn for production
-CMD gunicorn mosaicplane.wsgi:application --bind 0.0.0.0:${PORT:-8000}
+# Run the startup script which handles migrations and feature flags
+CMD ["./startup.sh"]

@@ -1,0 +1,1 @@
+# No cache clearing needed since API serves fresh data directly from database

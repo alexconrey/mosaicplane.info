@@ -33,6 +33,8 @@ urlpatterns = [
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # Aircraft API endpoints
     path('v1/', include('aircraft.urls')),
+    # Feature flags API endpoints
+    path('v1/feature-flags/', include('feature_flags.urls')),
     # API Landing Page (for root path after nginx strips /api/ prefix)
     path('', TemplateView.as_view(template_name='api_landing.html'), name='api-landing'),
 ]

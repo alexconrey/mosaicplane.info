@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '0.0.0.0',
+    'api',  # Docker compose service name
     'api.mosaicplane.info',
     'api-mosaicplane-info.herokuapp.com',
     'api.aircraftdb.info',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'aircraft',
+    'feature_flags',
 ]
 
 MIDDLEWARE = [
