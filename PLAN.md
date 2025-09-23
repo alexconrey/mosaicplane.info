@@ -28,11 +28,12 @@ The `api` will be a Django based application, written in Python, which construct
     * Sport Pilot Eligible (auto-calculated: ≤59 knots stall)
     * Timestamps (created/updated)
 
-* **Engine** (New Model)
+* **Engine** (Enhanced Model)
     * Manufacturer & Model designation
-    * Horsepower & Displacement (liters)
-    * Fuel Type (Avgas/Mogas/Diesel/Electric)
-    * Engine Type (Piston/Turboprop/Electric)
+    * Horsepower (for piston/electric) & Thrust Pounds (for jet/turboprop)
+    * Displacement (liters) for piston engines
+    * Fuel Type (Avgas/Mogas/JET_A/Diesel/Electric)
+    * Engine Type (Piston/Turboprop/Jet/Electric)
     * Fuel Injection (boolean)
     * Timestamps (created/updated)
 
@@ -62,14 +63,14 @@ The `api` will be a Django based application, written in Python, which construct
 
 ### Database (Implemented)
 * **SQLite**: Development database with verified MOSAIC-accurate data
-* **Comprehensive Data**: 120 aircraft including specific variants (Cessna 150A-150M, 172A-172S, 182A-182T), 19+ manufacturers, 11+ engines
+* **Comprehensive Data**: 190+ aircraft including specific variants (Cessna 150A-150M, 172A-172S, 182A-182T), 41 manufacturers, 100+ engines
 * **Data Verification**: All aircraft include source documentation (POHs, type certificates)
-* **Engine Database**: Continental, Lycoming, Rotax engines with specifications
+* **Engine Database**: Continental, Lycoming, Rotax piston engines plus jet/turboprop engines with type-specific power specifications
 * **MOSAIC Validation**: Automatic compliance calculation based on stall speeds and certification dates
 
 ### Management Tools (Implemented)
 * **Data Population**: `python manage.py update_mosaic_aircraft` - populate database with verified data
-* **Unified Seed Command**: `python manage.py seed_exact` - consolidated command with exactly 120 aircraft variants including specific Cessna 150/172/182 models
+* **Comprehensive Seed Command**: `python manage.py seed` - consolidated command with 190+ aircraft including all variants, experimental, LSA, GA, and reference jets
 * **Correction Review**: `python manage.py review_corrections` - full CLI for managing user corrections
   * List pending corrections: `--list`
   * Review specific correction: `--show ID`
@@ -101,7 +102,7 @@ The `api` will be a Django based application, written in Python, which construct
 
 3. **✅ Aircraft Detail Pages**
    - **Performance Specifications**: All speeds, weights, seating with context
-   - **Engine Information**: Detailed engine specs, horsepower, fuel types
+   - **Engine Information**: Engine-type specific specs, horsepower/thrust, fuel types, system descriptions
    - **Certification Details**: Dates and MOSAIC compliance explanations
    - **Data Verification**: Source documentation for transparency
    - **MOSAIC Impact**: Regulation explanations specific to each aircraft

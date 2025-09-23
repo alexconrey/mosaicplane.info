@@ -9,8 +9,8 @@ The MOSAIC regulations represent a revolutionary change in general aviation, exp
 ## Key Features
 
 ### 🛩️ Aircraft Database
-- **120+ Aircraft**: Comprehensive database including specific variants (Cessna 150A-150M, 172A-172S, 182A-182T)
-- **Detailed Specifications**: Performance data, engine configurations, certification dates
+- **190+ Aircraft**: Comprehensive database including specific variants (Cessna 150A-150M, 172A-172S, 182A-182T)
+- **Detailed Specifications**: Performance data, engine-type specific configurations, certification dates
 - **MOSAIC Compliance**: Automatic calculation based on stall speeds and certification requirements
 - **Data Verification**: All aircraft specifications verified against POHs and type certificates
 

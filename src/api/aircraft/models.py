@@ -216,6 +216,28 @@ class Aircraft(models.Model):
         ],
         help_text="Never exceed speed (Vne) in knots"
     )
+    vle_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Maximum speed with landing gear extended (Vle) in knots"
+    )
+    vlo_speed = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True,
+        validators=[
+            MinValueValidator(0.0),
+            MaxValueValidator(999.0)
+        ],
+        help_text="Maximum speed for landing gear operation (Vlo) in knots"
+    )
     max_takeoff_weight = models.IntegerField(
         null=True, 
         blank=True,
@@ -326,6 +348,8 @@ class AircraftCorrection(models.Model):
         ('vfe_speed', 'Maximum flap extended speed (Vfe)'),
         ('vno_speed', 'Maximum structural cruising speed (Vno)'),
         ('vne_speed', 'Never exceed speed (Vne)'),
+        ('vle_speed', 'Maximum speed with landing gear extended (Vle)'),
+        ('vlo_speed', 'Maximum speed for landing gear operation (Vlo)'),
         ('max_takeoff_weight', 'Maximum takeoff weight'),
         ('seating_capacity', 'Seating capacity'),
         ('retractable_gear', 'Retractable gear'),

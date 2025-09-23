@@ -146,11 +146,24 @@ Follow the `PLAN.md` document for the overall plan of the project.
 - **Documentation Enhancement**: Created comprehensive DEPLOYMENT_NOTES.md with lessons learned
 - **V-Speed Data Continuation**: Added 3 more aircraft (Mooney M20C, CTLS, Cherokee 140) to seed script
 
+### Engine Configuration System Enhancement (September 2024)
+- **Engine-Type Specific Display Logic**: Implemented dynamic engine specification display based on engine type (piston, turboprop, jet, electric)
+- **Jet Engine Optimization**:
+  - Removed inappropriate horsepower ratings from jet engines
+  - Display thrust output in lbf with blue highlighting for visual emphasis
+  - Hide redundant "Thrust Rating" section to streamline jet engine display
+  - Use JET_A fuel type instead of incorrect diesel classification
+- **Database Normalization**: Enhanced Engine model to support both horsepower (piston/electric) and thrust_pounds (jet/turboprop) measurements
+- **API Serialization**: Added thrust_pounds field to EngineSerializer for proper frontend data access
+- **Fuel System Accuracy**: Engine-specific fuel system descriptions (FCU for jets, carburetors for piston, BMS for electric)
+- **Comprehensive Testing**: Added E2E tests to verify correct engine type display across all browsers
+- **Data Verification**: Updated seed data with accurate Boeing 737-800 (27,300 lbf) and C-130 Hercules (4,591 lbf) thrust specifications
+
 ### Aircraft Information Section Redesign (September 2024)
 - **Unified Layout**: Consolidated performance specifications and certification information into a single full-width "Aircraft Information" section
 - **2x2 Grid Design**: Organized data into four logical sections:
   - **Flight Envelope**: Critical safety speeds (Vs1, Vs0, Va, Vno, Vne, Top Speed)
-  - **Performance Speeds**: Operational speeds (Vx, Vy, Vg, Vfe, Cruise Speed)  
+  - **Performance Speeds**: Operational speeds (Vx, Vy, Vg, Vfe, Cruise Speed)
   - **Aircraft Limits**: Weight and seating constraints (MTOW, Seating Capacity)
   - **Certification**: Regulatory compliance (Certification Date, MOSAIC/Sport Pilot Eligibility)
 - **Enhanced Typography**: Increased font size and weight for key specifications in MOSAIC eligibility summary
@@ -166,8 +179,8 @@ Follow the `PLAN.md` document for the overall plan of the project.
 - **Performance**: Efficient rendering with conditional V-speed display based on data availability
 
 ## Testing Infrastructure
-### Comprehensive Test Coverage (53+ Tests)
-- **E2E Tests**: 28 tests covering all user flows with 100% pass rate
+### Comprehensive Test Coverage (54+ Tests)
+- **E2E Tests**: 29 tests covering all user flows with 100% pass rate
 - **Legal Compliance**: 5 tests for disclaimer functionality and footer links
 - **Accessibility**: 10 tests for WCAG compliance, keyboard navigation, screen reader support
 - **Best Practices**: 10 tests for SEO, performance, semantic HTML, security
@@ -180,7 +193,7 @@ Follow the `PLAN.md` document for the overall plan of the project.
 - **Production Deployment**: Heroku API + Cloudflare UI deployment on main branch with health checks
 
 ### Database Status
-- **Aircraft**: 173 models across 40 manufacturers
+- **Aircraft**: 191 models across 41 manufacturers
 - **V-Speed Completion**: 40/173 aircraft (23.1%) have complete v-speed data
 - **Expansion Plan**: TODO_AIRCRAFT_MANUFACTURERS.md and TODO_AIRCRAFT_IMPORTS.md created
 - **VSPEED_TODO.md**: Detailed backfill plan for remaining 133 aircraft
